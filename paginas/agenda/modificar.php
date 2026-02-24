@@ -171,7 +171,7 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <a href="./agenda.php" class="btn-link"
             style="text-decoration:none; display:block; text-align:center; padding:12px;">+ Neue Aufgabe</a>
 
-        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; margin-top: 5px;">
             <a href="./agendaMenu.html" class="btn-link"
                 style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem; background: linear-gradient(135deg, #6c757d, #495057);">
                 ⬅ Atrás
