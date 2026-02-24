@@ -82,6 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
     </div>
 
-    <script src="../../js/agenda.js"></script>
+    <script src="./agenda.js"></script>
 </body>
 </html>
