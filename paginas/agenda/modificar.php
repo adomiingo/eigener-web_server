@@ -117,9 +117,9 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </table>
         
         <br>
-        <a href="agenda.php" class="btn-link" style="text-decoration:none; display:block; text-align:center; padding:12px;">+ Neue Aufgabe</a>
+        <a href="./agenda.php" class="btn-link" style="text-decoration:none; display:block; text-align:center; padding:12px;">+ Neue Aufgabe</a>
     </div>
 
-    <script src=".agenda.js"></script>
+    <script src="./agenda.js"></script>
 </body>
 </html>
