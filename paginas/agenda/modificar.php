@@ -9,14 +9,16 @@ try {
 if (isset($_GET['delete'])) {
     $stmt = $db->prepare("DELETE FROM aufgaben WHERE id = ?");
     $stmt->execute([$_GET['delete']]);
-    header("Location: listado_agenda.php"); // Recargar para limpiar la URL
+    header("Location: " . $_SERVER['PHP_SELF']); // Vuelve al archivo actual dinámicamente
+    exit; // Detiene la ejecución después de redirigir
 }
 
 if (isset($_GET['toggle'])) {
     $nuevo_estado = ($_GET['st'] == 'Ausstehen') ? 'Erledigt' : 'Ausstehen';
     $stmt = $db->prepare("UPDATE aufgaben SET zustand = ? WHERE id = ?");
     $stmt->execute([$nuevo_estado, $_GET['toggle']]);
-    header("Location: listado_agenda.php");
+    header("Location: " . $_SERVER['PHP_SELF']); // Vuelve al archivo actual dinámicamente
+    exit; // Detiene la ejecución
 }
 
 // --- LÓGICA DE FILTRADO ---
@@ -39,7 +41,6 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Tareas</title>
     <link rel="stylesheet" href="../../css/agenda.css">
-    
 </head>
 <body>
     <div id="principal" style="max-width: 800px;">
@@ -59,7 +60,7 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <option value="Erledigt">Erledigt</option>
                 </select>
                 <button type="submit" style="margin:0; padding: 5px 15px;">Filtern</button>
-                <a href="listado_agenda.php" style="font-size: 12px; align-self: center;">Limpiar</a>
+                <a href="<?php echo $_SERVER['PHP_SELF']; ?>" style="font-size: 12px; align-self: center;">Limpiar</a>
             </form>
         </div>
 
@@ -76,8 +77,8 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php foreach ($aufgaben as $row): ?>
                 <tr>
                     <td><strong><?php echo htmlspecialchars($row['betreff']); ?></strong></td>
-                    <td><?php echo $row['fach']; ?><br><small><?php echo date("d.m.Y", strtotime($row['daten'])); ?></small></td>
-                    <td class="status-<?php echo strtolower($row['zustand']); ?>"><?php echo $row['zustand']; ?></td>
+                    <td><?php echo htmlspecialchars($row['fach']); ?><br><small><?php echo date("d.m.Y", strtotime($row['daten'])); ?></small></td>
+                    <td class="status-<?php echo strtolower($row['zustand']); ?>"><?php echo htmlspecialchars($row['zustand']); ?></td>
                     <td>
                         <a href="?toggle=<?php echo $row['id']; ?>&st=<?php echo $row['zustand']; ?>" class="btn-action btn-status" title="Cambiar estado">✔</a>
                         <a href="?delete=<?php echo $row['id']; ?>" class="btn-action btn-del" onclick="return confirm('¿Borrar?')" title="Eliminar">🗑</a>
