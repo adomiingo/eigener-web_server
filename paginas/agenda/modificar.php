@@ -37,38 +37,83 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Tareas - Modificar</title>
     <link rel="stylesheet" href="../../css/agenda.css">
-    
+
     <style>
-        .btn-undo { background: #f39c12; } /* Botón naranja de deshacer */
-        .task-row { cursor: pointer; transition: all 0.3s ease; }
-        .task-row:hover { background-color: #f4f8ff; }
-        .task-row.expanded { transform: scale(1.02); box-shadow: 0 8px 20px rgba(0, 90, 180, 0.12); background-color: #ffffff; z-index: 10; position: relative; }
-        .task-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #d0e2ff; font-size: 0.9rem; color: #444; }
-        .task-row.expanded .task-details { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .btn-undo {
+        background: #f39c12;
+    }
+
+    /* Botón naranja de deshacer */
+    .task-row {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .task-row:hover {
+        background-color: #f4f8ff;
+    }
+
+    .task-row.expanded {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 90, 180, 0.12);
+        background-color: #ffffff;
+        z-index: 10;
+        position: relative;
+    }
+
+    .task-details {
+        display: none;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #d0e2ff;
+        font-size: 0.9rem;
+        color: #444;
+    }
+
+    .task-row.expanded .task-details {
+        display: block;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
     </style>
 </head>
+
 <body>
     <div id="principal" style="max-width: 800px;">
         <h2>Aufgabenliste</h2>
-        
+
         <div class="filter-section">
             <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <select name="f_fach">
                     <option value="">Fächer</option>
                     <option value="Redes" <?php if(@$_GET['f_fach']=='Redes') echo 'selected'; ?>>Redes</option>
-                    <option value="Sistemas" <?php if(@$_GET['f_fach']=='Sistemas') echo 'selected'; ?>>Sistemas</option>
+                    <option value="Sistemas" <?php if(@$_GET['f_fach']=='Sistemas') echo 'selected'; ?>>Sistemas
+                    </option>
                     <option value="Web" <?php if(@$_GET['f_fach']=='Web') echo 'selected'; ?>>Web</option>
                 </select>
                 <select name="f_zustand">
                     <option value="">Status</option>
-                    <option value="Ausstehen" <?php if(@$_GET['f_zustand']=='Ausstehen') echo 'selected'; ?>>Ausstehen</option>
-                    <option value="Erledigt" <?php if(@$_GET['f_zustand']=='Erledigt') echo 'selected'; ?>>Erledigt</option>
+                    <option value="Ausstehen" <?php if(@$_GET['f_zustand']=='Ausstehen') echo 'selected'; ?>>Ausstehen
+                    </option>
+                    <option value="Erledigt" <?php if(@$_GET['f_zustand']=='Erledigt') echo 'selected'; ?>>Erledigt
+                    </option>
                 </select>
                 <button type="submit" style="margin:0; padding: 5px 15px; width: auto;">Filtern</button>
                 <a href="<?php echo $_SERVER['PHP_SELF']; ?>" style="font-size: 12px; align-self: center;">Limpiar</a>
@@ -76,7 +121,8 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div style="margin-bottom: 15px;">
-            <input type="text" id="buscadorJS" placeholder="🔍 Buscar tarea rápidamente por título..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d0e2ff; font-size: 0.95rem;">
+            <input type="text" id="buscadorJS" placeholder="🔍 Buscar tarea rápidamente por título..."
+                style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d0e2ff; font-size: 0.95rem;">
         </div>
 
         <table>
@@ -90,23 +136,28 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </thead>
             <tbody>
                 <?php foreach ($aufgaben as $row): ?>
-                
+
                 <tr class="task-row">
                     <td>
                         <strong><?php echo htmlspecialchars($row['betreff']); ?></strong>
-                        
+
                         <div class="task-details">
-                            <p><strong>Beschreibung:</strong> <?php echo nl2br(htmlspecialchars($row['beschreibung'])); ?></p>
-                            <p style="margin-top: 5px;"><strong>Datum:</strong> <?php echo date("d.m.Y", strtotime($row['daten'])); ?></p>
+                            <p><strong>Beschreibung:</strong>
+                                <?php echo nl2br(htmlspecialchars($row['beschreibung'])); ?></p>
+                            <p style="margin-top: 5px;"><strong>Datum:</strong>
+                                <?php echo date("d.m.Y", strtotime($row['daten'])); ?></p>
                         </div>
                     </td>
                     <td><?php echo htmlspecialchars($row['fach']); ?></td>
-                    <td class="status-<?php echo strtolower($row['zustand']); ?>"><?php echo htmlspecialchars($row['zustand']); ?></td>
+                    <td class="status-<?php echo strtolower($row['zustand']); ?>">
+                        <?php echo htmlspecialchars($row['zustand']); ?></td>
                     <td>
                         <?php if ($row['zustand'] == 'Ausstehen'): ?>
-                            <a href="?toggle=<?php echo $row['id']; ?>&st=<?php echo $row['zustand']; ?>" class="btn-action btn-status" title="Marcar como Completado">✔</a>
+                        <a href="?toggle=<?php echo $row['id']; ?>&st=<?php echo $row['zustand']; ?>"
+                            class="btn-action btn-status" title="Marcar como Completado">✔</a>
                         <?php else: ?>
-                            <a href="?toggle=<?php echo $row['id']; ?>&st=<?php echo $row['zustand']; ?>" class="btn-action btn-undo" title="Deshacer (Pendiente)">↺</a>
+                        <a href="?toggle=<?php echo $row['id']; ?>&st=<?php echo $row['zustand']; ?>"
+                            class="btn-action btn-undo" title="Deshacer (Pendiente)">↺</a>
                         <?php endif; ?>
 
                         <a href="?delete=<?php echo $row['id']; ?>" class="btn-action btn-del" title="Eliminar">🗑</a>
@@ -115,11 +166,23 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </tbody>
         </table>
-        
+
         <br>
-        <a href="./agenda.php" class="btn-link" style="text-decoration:none; display:block; text-align:center; padding:12px;">+ Neue Aufgabe</a>
+        <a href="./agenda.php" class="btn-link"
+            style="text-decoration:none; display:block; text-align:center; padding:12px;">+ Neue Aufgabe</a>
+    </div>
+    <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+        <a href="./agendaMenu.html" class="btn-link"
+            style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem; background: linear-gradient(135deg, #6c757d, #495057);">
+            ⬅ Atrás
+        </a>
+
+        <a href="../../index.html" class="btn-link" style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem;">
+            Inicio
+        </a>
     </div>
 
     <script src="./agenda.js"></script>
 </body>
+
 </html>
