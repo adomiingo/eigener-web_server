@@ -6,8 +6,8 @@ try {
 } catch (PDOException $e) { die("Error: " . $e->getMessage()); }
 
 // --- CONFIGURACIÓN TELEGRAM ---
-$TELEGRAM_TOKEN = "TU_TOKEN";
-$CHAT_ID = "TU_CHAT_ID";
+TOKEN = "8794845655:AAG2FGe4LPWaYBxganYF4pTYC0uIyTLqpTg"
+CHAT_ID = "5181963608"
 
 function enviar_telegram($mensaje) {
     global $TELEGRAM_TOKEN, $CHAT_ID;
