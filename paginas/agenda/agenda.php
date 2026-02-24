@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="date" name="daten" min="<?php echo date('Y-m-d'); ?>" required>
             
             <button type="submit">Speichern</button>
-            <a href="listado_agenda.php" style="text-align:center; display:block; margin-top:15px; color:#2a6df4; text-decoration:none;">Ver lista de tareas →</a>
+            <a href="./modificar.php" style="text-align:center; display:block; margin-top:15px; color:#2a6df4; text-decoration:none;">Ver lista de tareas →</a>
         </form>
     </div>
 </body>
