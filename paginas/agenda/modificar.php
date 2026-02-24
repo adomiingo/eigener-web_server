@@ -39,17 +39,7 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <title>Lista de Tareas</title>
     <link rel="stylesheet" href="../../css/agenda.css">
-    <style>
-        .filter-section { background: #f9fbff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #d0e2ff; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th { background: #0d3b8b; color: white; padding: 10px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
-        .btn-action { padding: 5px 8px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; color: white; margin-right: 5px; }
-        .btn-del { background: #e74c3c; }
-        .btn-status { background: #2ecc71; }
-        .status-ausstehen { color: #e74c3c; font-weight: bold; }
-        .status-erledigt { color: #27ae60; font-weight: bold; }
-    </style>
+    
 </head>
 <body>
     <div id="principal" style="max-width: 800px;">
