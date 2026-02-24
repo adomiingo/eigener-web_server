@@ -83,17 +83,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 Ver lista de tareas →
             </a>
         </form>
-    </div>
-    <div style="display: flex; gap: 15px; margin-bottom: 25px;">
-        <a href="./agendaMenu.html" class="btn-link"
-            style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem; background: linear-gradient(135deg, #6c757d, #495057);">
-            ⬅ Atrás
-        </a>
+        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+            <a href="./agendaMenu.html" class="btn-link"
+                style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem; background: linear-gradient(135deg, #6c757d, #495057);">
+                ⬅ Atrás
+            </a>
 
-        <a href="../../index.html" class="btn-link" style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem;">
-            Inicio
-        </a>
+            <a href="../../index.html" class="btn-link"
+                style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem;">
+                Inicio
+            </a>
+        </div>
     </div>
+
 
     <script src="./agenda.js"></script>
 </body>
