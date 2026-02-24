@@ -71,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <option value="Sistemas">Sistemas Operativos</option>
                 <option value="Seguridad">Seguridad Informática</option>
                 <option value="Web">Aplicaciones Web</option>
+                <option value="Personal">Personal</option>
             </select>
 
             <label for="daten">Datum:</label>
