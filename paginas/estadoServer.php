@@ -104,7 +104,7 @@ try {
         </div>
 
         <div class="footer-links">
-            <a href="index.php" class="btn-link">⬅ Volver a la Agenda</a>
+            <a href="../index.html" class="btn-link">⬅ Pagina principal</a>
         </div>
     </div>
 </body>
