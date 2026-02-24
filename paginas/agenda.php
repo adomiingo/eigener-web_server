@@ -72,8 +72,8 @@ $aufgaben = $stmt_list->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMR Erinnerungen</title>
-    <link rel="stylesheet" href="./css/phpindex.css">
+    <title>Eigener Erinnerungen</title>
+    <link rel="stylesheet" href="../css/agenda.css">
     <style>
         /* Estilos rápidos para la tabla y filtros si no están en tu CSS */
         .filter-section { background: #fff; padding: 15px; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
