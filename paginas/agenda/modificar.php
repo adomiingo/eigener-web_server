@@ -88,7 +88,7 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </tbody>
         </table>
         <br>
-        <a href="subir_agenda.php" class="btn-link" style="text-decoration:none; display:inline-block; padding:10px;">+ Nueva Tarea</a>
+        <a href="agenda.php" class="btn-link" style="text-decoration:none; display:inline-block; padding:10px;">+ Nueva Tarea</a>
     </div>
 </body>
 </html>
