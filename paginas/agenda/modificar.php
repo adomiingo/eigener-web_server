@@ -5,6 +5,25 @@ try {
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) { die("Error: " . $e->getMessage()); }
 
+// --- CONFIGURACIÓN TELEGRAM ---
+$TELEGRAM_TOKEN = "TU_TOKEN";
+$CHAT_ID = "TU_CHAT_ID";
+
+function enviar_telegram($mensaje) {
+    global $TELEGRAM_TOKEN, $CHAT_ID;
+    $url = "https://api.telegram.org/bot" . $TELEGRAM_TOKEN . "/sendMessage";
+    $datos = ['chat_id' => $CHAT_ID, 'text' => $mensaje, 'parse_mode' => 'Markdown'];
+    $opciones = [
+        'http' => [
+            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method'  => 'POST',
+            'content' => http_build_query($datos)
+        ]
+    ];
+    $contexto  = stream_context_create($opciones);
+    file_get_contents($url, false, $contexto);
+}
+
 // --- LÓGICA DE ACCIONES (BORRAR Y EDITAR ESTADO) ---
 if (isset($_GET['delete'])) {
     $stmt = $db->prepare("DELETE FROM aufgaben WHERE id = ?");
@@ -17,6 +36,65 @@ if (isset($_GET['toggle'])) {
     $nuevo_estado = ($_GET['st'] == 'Ausstehen') ? 'Erledigt' : 'Ausstehen';
     $stmt = $db->prepare("UPDATE aufgaben SET zustand = ? WHERE id = ?");
     $stmt->execute([$nuevo_estado, $_GET['toggle']]);
+
+    // --- AUTOMATIZACIÓN TELEGRAM (Solo si se marca como Erledigt) ---
+    if ($nuevo_estado == 'Erledigt') {
+        $hoy = date('Y-m-d');
+        
+        // 1. Buscar todas las tareas pendientes de hoy
+        $stmt_pend = $db->prepare("SELECT betreff, fach FROM aufgaben WHERE daten = ? AND zustand = 'Ausstehen'");
+        $stmt_pend->execute([$hoy]);
+        $pendientes = $stmt_pend->fetchAll(PDO::FETCH_ASSOC);
+        
+        // 2. Buscar todas las tareas realizadas de hoy
+        $stmt_hechas = $db->prepare("SELECT betreff, fach FROM aufgaben WHERE daten = ? AND zustand = 'Erledigt'");
+        $stmt_hechas->execute([$hoy]);
+        $hechas = $stmt_hechas->fetchAll(PDO::FETCH_ASSOC);
+
+        // 3. Separar pendientes en Académicas y Personales
+        $academicas = [];
+        $personales = [];
+        foreach ($pendientes as $p) {
+            if (strtolower($p['fach']) == 'personal') {
+                $personales[] = $p;
+            } else {
+                $academicas[] = $p;
+            }
+        }
+
+        // MENSAJE 1: Tareas Pendientes (Clasificadas)
+        $txt_pendientes = "🔔 *ESTADO ACTUALIZADO*\n📝 *Tareas Pendientes para hoy*:\n\n";
+        
+        if (count($academicas) > 0) {
+            $txt_pendientes .= "🎓 *Académicas*:\n";
+            foreach ($academicas as $a) {
+                $txt_pendientes .= "🔸 *" . $a['fach'] . "*: " . $a['betreff'] . "\n";
+            }
+            $txt_pendientes .= "\n";
+        }
+        
+        if (count($personales) > 0) {
+            $txt_pendientes .= "🏠 *Personales*:\n";
+            foreach ($personales as $p) {
+                $txt_pendientes .= "🔹 " . $p['betreff'] . "\n";
+            }
+            $txt_pendientes .= "\n";
+        }
+        
+        if (count($pendientes) == 0) {
+            $txt_pendientes .= "¡Todo limpio! No hay más tareas para hoy. 🎉\n";
+        }
+        
+        enviar_telegram($txt_pendientes);
+
+        // MENSAJE 2: Tareas Realizadas
+        $txt_realizadas = "✅ *Tareas Realizadas Hoy*:\n\n";
+        foreach ($hechas as $h) {
+            $txt_realizadas .= "✔️ *" . $h['fach'] . "*: " . $h['betreff'] . "\n";
+        }
+        enviar_telegram($txt_realizadas);
+    }
+
     header("Location: " . $_SERVER['PHP_SELF']); 
     exit; 
 }
