@@ -1,5 +1,6 @@
 import sqlite3
 import requests
+import time
 from datetime import date
 
 # 1. Configuración de Telegram
@@ -22,48 +23,35 @@ try:
     cursor.execute("SELECT betreff, fach, daten FROM aufgaben WHERE zustand = 'Ausstehen' ORDER BY daten ASC")
     tareas = cursor.fetchall()
     
-    # Listas para clasificar
-    urgentes_hoy = []
-    academicas_pendientes = []
-    personales_pendientes = []
-    
-    # Clasificador automático
-    for tarea in tareas:
-        betreff, fach, daten = tarea
-        
-        if daten == hoy:
-            urgentes_hoy.append(tarea)
-        else:
-            if fach.lower() == 'personal':
-                personales_pendientes.append(tarea)
-            else:
-                academicas_pendientes.append(tarea)
+    if not tareas:
+        print("📭 No hay tareas pendientes.")
+    else:
+        # Analizamos y enviamos cada tarea UNA a UNA
+        for tarea in tareas:
+            betreff, fach, daten = tarea
+            
+            # Formatear la fecha a DD-MM-YYYY para que sea más legible
+            fecha_formato = f"{daten[8:10]}-{daten[5:7]}-{daten[0:4]}"
+            
+            # 1. ¿Es para hoy? (EMERGENCIA)
+            if daten == hoy:
+                mensaje = f"🚨 *¡URGENTE PARA HOY!*\n⚠️ *{fach}*: {betreff}"
                 
-    # --- ENVÍO DE MENSAJES SEPARADOS ---
-    
-    # 1. Mensaje de Emergencia (Si hay tareas con fecha de HOY)
-    if urgentes_hoy:
-        txt_urgente = f"🚨 *¡EMERGENCIA! TAREAS PARA HOY* ({hoy}) 🚨\n\n"
-        for t in urgentes_hoy:
-            txt_urgente += f"⚠️ *{t[1]}*: {t[0]}\n"
-        enviar_telegram(txt_urgente)
-        
-    # 2. Mensaje: Otras Académicas Pendientes
-    if academicas_pendientes:
-        txt_acad = "🎓 *OTRAS ACADÉMICAS PENDIENTES*\n\n"
-        for t in academicas_pendientes:
-            # Formateamos la fecha para verla en DD-MM-YYYY
-            fecha_formato = f"{t[2][8:10]}-{t[2][5:7]}-{t[2][0:4]}"
-            txt_acad += f"📚 *{t[1]}* ({fecha_formato}): {t[0]}\n"
-        enviar_telegram(txt_acad)
-        
-    # 3. Mensaje: Otras Personales Pendientes
-    if personales_pendientes:
-        txt_pers = "🏠 *OTRAS PERSONALES PENDIENTES*\n\n"
-        for t in personales_pendientes:
-            fecha_formato = f"{t[2][8:10]}-{t[2][5:7]}-{t[2][0:4]}"
-            txt_pers += f"🔹 ({fecha_formato}): {t[0]}\n"
-        enviar_telegram(txt_pers)
+            # 2. ¿Es personal?
+            elif fach.lower() == 'personal':
+                mensaje = f"🏠 *PERSONAL PENDIENTE*\n🔹 {betreff}\n📅 Fecha: {fecha_formato}"
+                
+            # 3. ¿Es académica?
+            else:
+                mensaje = f"🎓 *ACADÉMICA PENDIENTE*\n📚 *{fach}*: {betreff}\n📅 Fecha: {fecha_formato}"
+                
+            # Enviamos el mensaje individual
+            enviar_telegram(mensaje)
+            
+            # Pausa de seguridad de 0.3 segundos para no saturar la API de Telegram
+            time.sleep(0.3)
+            
+        print(f"✅ Se han enviado {len(tareas)} notificaciones individuales a Telegram.")
 
 except sqlite3.Error as e:
     print(f"❌ Error de base de datos: {e}")
