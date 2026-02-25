@@ -4,7 +4,7 @@ $mensaje_accion = "";
 if (isset($_POST['ejecutar_alertas'])) {
     // Ejecutamos el script de Python. 
     // Nota SMR: Ajusta la ruta si cambiaste el nombre del archivo.
-    $comando = escapeshellcmd("python3 ./code/alertas.py");
+    $comando = escapeshellcmd("python3 ../code/alertas.py");
     $salida = shell_exec($comando . " 2>&1"); 
     $mensaje_accion = "<div class='alert success'>🚀 <strong>Comando ejecutado:</strong><br>" . nl2br(htmlspecialchars($salida)) . "</div>";
 }
