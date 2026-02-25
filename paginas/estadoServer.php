@@ -43,7 +43,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMR Server Dashboard</title>
+    <title>BRAIN STATUS</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; padding: 20px; }
         .container { max-width: 900px; margin: auto; }
@@ -63,7 +63,7 @@ try {
 </head>
 <body>
     <div class="container">
-        <h1>📊 Panel de Control del Servidor</h1>
+        <h1>📊 MAIN BRAIN</h1>
         
         <?php echo $mensaje_accion; ?>
 
