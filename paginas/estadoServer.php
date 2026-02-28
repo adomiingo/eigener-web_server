@@ -1,26 +1,27 @@
 <?php
+// --- 0. ENDPOINT PARA EL LOG EN VIVO (AJAX) ---
+if (isset($_GET['get_log'])) {
+    // Leemos las últimas 15 líneas del log de accesos de Nginx
+    $log = shell_exec("tail -n 15 /var/log/nginx/access.log 2>&1");
+    if (empty($log)) {
+        echo "Esperando registros... (O el usuario web no tiene permisos de lectura en /var/log/nginx/access.log)";
+    } else {
+        echo htmlspecialchars($log);
+    }
+    exit; // Detenemos la ejecución aquí para devolver solo texto al JavaScript
+}
+
 // --- 1. LÓGICA DEL BOTÓN DE ALERTAS ---
 $mensaje_accion = "";
 if (isset($_POST['ejecutar_alertas'])) {
-    // Ejecutamos el script de Python. 
-    // Nota SMR: Ajusta la ruta si cambiaste el nombre del archivo.
     $comando = escapeshellcmd("python3 ../code/alertas.py");
     $salida = shell_exec($comando . " 2>&1"); 
     $mensaje_accion = "<div class='alert success'>🚀 <strong>Comando ejecutado:</strong><br>" . nl2br(htmlspecialchars($salida)) . "</div>";
 }
 
-// --- 2. RECOPILACIÓN DE DATOS DEL SISTEMA (Linux CLI) ---
-// Tiempo encendido
+// --- 2. RECOPILACIÓN DE DATOS DEL SISTEMA ---
 $uptime = shell_exec("uptime -p");
-
-// Uso de RAM (Calcula el porcentaje y los MB usados)
 $ram_usage = shell_exec("free -m | awk 'NR==2{printf \"%.1f%% (Usado: %s MB)\", $3*100/$2, $3 }'");
-
-// Uso de Disco (Porcentaje usado y espacio libre en la raíz /)
-$disk_usage = shell_exec("df -h / | awk '$NF==\"/\"{printf \"%s (Libre: %s)\", $5, $4}'");
-
-// Carga de CPU (Los últimos 1, 5 y 15 minutos)
-$cpu_load = shell_exec("uptime | awk -F'load average:' '{ print $2 }'");
 
 // --- 3. INFORMACIÓN DE LA BASE DE DATOS ---
 $db_path = "/var/www/ubungen/kalender.db";
@@ -45,67 +46,103 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BRAIN STATUS</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
-        h1 { border-bottom: 2px solid #0078D7; padding-bottom: 10px; color: #ffffff; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
-        .card { background: #1e1e1e; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-left: 4px solid #0078D7; }
-        .card h3 { margin-top: 0; color: #0078D7; font-size: 1.1rem; }
-        .card p { font-size: 1.2rem; margin: 10px 0 0 0; font-weight: bold; }
-        .btn-run { background-color: #28a745; color: white; border: none; padding: 15px 25px; font-size: 1.1rem; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-run:hover { background-color: #218838; transform: scale(1.02); }
-        .alert { background: #17a2b8; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-        .alert.success { background: #28a745; }
-        .footer-links { margin-top: 30px; display: flex; gap: 15px; }
-        .btn-link { background: #444; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; text-align: center; flex: 1; }
-        .btn-link:hover { background: #555; }
+        /* Estética Minimalista: Blanco y Azul */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; color: #334155; padding: 20px; margin: 0; }
+        .container { max-width: 900px; margin: auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        
+        h1 { color: #0284c7; font-weight: 300; text-align: center; margin-top: 0; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; letter-spacing: 1px; }
+        h3 { color: #0284c7; margin-top: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Grid de Tarjetas */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; margin-bottom: 40px; }
+        .card { background: #ffffff; padding: 25px 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-top: 4px solid #0284c7; text-align: center; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1); }
+        .card p { font-size: 1.3rem; margin: 10px 0 0 0; font-weight: bold; color: #0f172a; }
+
+        /* Terminal de Logs */
+        .log-wrapper { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
+        .log-terminal { background: #0f172a; color: #38bdf8; font-family: 'Courier New', Courier, monospace; padding: 15px; border-radius: 6px; height: 200px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; line-height: 1.4; }
+        
+        /* Sección de Acción */
+        .action-section { background: #f0f9ff; padding: 25px; border-radius: 8px; border: 1px solid #bae6fd; text-align: center; }
+        .action-section h3 { color: #0369a1; }
+        .action-section p { color: #475569; font-size: 0.95rem; margin-bottom: 20px; }
+        
+        /* Botones y Alertas */
+        .btn-run { background-color: #0284c7; color: white; border: none; padding: 12px 25px; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.3s; }
+        .btn-run:hover { background-color: #0369a1; }
+        .alert { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #0284c7; }
+        .alert.success { background: #dcfce7; color: #166534; border-left-color: #22c55e; }
+        
+        .footer-links { margin-top: 30px; text-align: center; }
+        .btn-link { display: inline-block; background: #e2e8f0; color: #475569; padding: 10px 25px; text-decoration: none; border-radius: 6px; font-weight: 500; transition: background 0.2s; }
+        .btn-link:hover { background: #cbd5e1; color: #0f172a; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 MAIN BRAIN</h1>
+        <h1>MAIN BRAIN</h1>
         
         <?php echo $mensaje_accion; ?>
 
         <div class="grid">
             <div class="card">
-                <h3>⏱️ Tiempo Activo (Uptime)</h3>
+                <h3>⏱️ Uptime</h3>
                 <p><?php echo htmlspecialchars($uptime); ?></p>
             </div>
             <div class="card">
-                <h3>🧠 Uso de RAM</h3>
+                <h3>🧠 RAM Usage</h3>
                 <p><?php echo htmlspecialchars($ram_usage); ?></p>
             </div>
-            <div class="card">
-                <h3>💾 Almacenamiento (Raíz)</h3>
-                <p><?php echo htmlspecialchars($disk_usage); ?></p>
-            </div>
-            <div class="card">
-                <h3>⚙️ Carga de CPU</h3>
-                <p><?php echo htmlspecialchars($cpu_load); ?></p>
-            </div>
-
-            <div class="card" style="border-left-color: #f39c12;">
-                <h3>📁 Tamaño SQLite</h3>
+            <div class="card" style="border-top-color: #0ea5e9;">
+                <h3>📁 Tamaño DB</h3>
                 <p><?php echo $db_size; ?></p>
             </div>
-            <div class="card" style="border-left-color: #f39c12;">
-                <h3>📝 Estado de Tareas</h3>
-                <p><?php echo $total_pendientes; ?> Pendientes / <?php echo $total_tareas; ?> Totales</p>
+            <div class="card" style="border-top-color: #0ea5e9;">
+                <h3>📝 Estado Tareas</h3>
+                <p><?php echo $total_pendientes; ?> Pendientes<br><span style="font-size: 0.9rem; color: #64748b; font-weight: normal;">de <?php echo $total_tareas; ?> Totales</span></p>
             </div>
         </div>
 
-        <div style="margin-top: 30px; background: #1e1e1e; padding: 20px; border-radius: 8px; border: 1px solid #333;">
-            <h3 style="margin-top: 0; color: #fff;">🤖 Disparador Manual de Telegram</h3>
-            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Ejecuta el script de Python para escanear las tareas pendientes y enviar las notificaciones individuales ahora mismo.</p>
+        <div class="log-wrapper">
+            <h3>📡 Server Live Log (Nginx Access)</h3>
+            <div id="live-log" class="log-terminal">Cargando registros del servidor...</div>
+        </div>
+
+        <div class="action-section">
+            <h3>🤖 Disparador Manual de Telegram</h3>
+            <p>Ejecuta el script de Python para escanear las tareas pendientes y enviar las notificaciones individuales ahora mismo.</p>
             <form method="post">
                 <button type="submit" name="ejecutar_alertas" class="btn-run">▶️ Ejecutar Python Script</button>
             </form>
         </div>
 
         <div class="footer-links">
-            <a href="../index.html" class="btn-link">⬅ Pagina principal</a>
+            <a href="../index.html" class="btn-link">⬅ Página principal</a>
         </div>
     </div>
+
+    <script>
+        function fetchLog() {
+            fetch('?get_log=1')
+                .then(response => response.text())
+                .then(data => {
+                    const logDiv = document.getElementById('live-log');
+                    const isScrolledToBottom = logDiv.scrollHeight - logDiv.clientHeight <= logDiv.scrollTop + 1;
+                    
+                    logDiv.innerHTML = data;
+                    
+                    // Solo hace autoscroll hacia abajo si el usuario ya estaba abajo del todo
+                    if (isScrolledToBottom) {
+                        logDiv.scrollTop = logDiv.scrollHeight;
+                    }
+                })
+                .catch(error => console.error('Error obteniendo el log:', error));
+        }
+
+        // Actualiza el log cada 2 segundos (2000 milisegundos)
+        setInterval(fetchLog, 2000);
+        fetchLog(); // Ejecución inmediata al cargar la página
+    </script>
 </body>
 </html>
