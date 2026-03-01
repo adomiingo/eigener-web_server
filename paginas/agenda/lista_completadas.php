@@ -177,8 +177,8 @@ th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform
         <?php endif; ?>
 
         <div class="footer-links">
-            <a href="../agendaMenu.html" class="btn-link">⬅ Volver a la Agenda</a>
-            <a href="../../estadoServer.php" class="btn-link">📊 Ver Panel de Servidor</a>
+            <a href="./agendaMenu.html" class="btn-link">⬅ Volver a la Agenda</a>
+            <a href="../../../estadoServer.php" class="btn-link">📊 Ver Panel de Servidor</a>
         </div>
     </div>
 
