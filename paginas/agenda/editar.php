@@ -77,7 +77,21 @@ if (!$tarea) {
 
             <div class="form-group">
                 <label>Asignatura / Categoría (Fach):</label>
-                <input type="text" name="fach" required value="<?php echo htmlspecialchars($tarea['fach']); ?>">
+                <select name="fach" required>
+                    <option value="Redes" <?php if ($tarea['fach'] == 'Redes') echo 'selected'; ?>>Redes Locales</option>
+                    <option value="Sistemas" <?php if ($tarea['fach'] == 'Sistemas') echo 'selected'; ?>>Sistemas Operativos</option>
+                    <option value="Seguridad" <?php if ($tarea['fach'] == 'Seguridad') echo 'selected'; ?>>Seguridad Informática</option>
+                    <option value="Web" <?php if ($tarea['fach'] == 'Web') echo 'selected'; ?>>Aplicaciones Web</option>
+                    <option value="Personal" <?php if ($tarea['fach'] == 'Personal') echo 'selected'; ?>>Personal</option>
+                    <option value="Server" <?php if ($tarea['fach'] == 'Server') echo 'selected'; ?>>Server Idea</option>
+                    
+                    <?php 
+                    $opciones_validas = ['Redes', 'Sistemas', 'Seguridad', 'Web', 'Personal', 'Server'];
+                    if (!in_array($tarea['fach'], $opciones_validas) && !empty($tarea['fach'])): 
+                    ?>
+                        <option value="<?php echo htmlspecialchars($tarea['fach']); ?>" selected><?php echo htmlspecialchars($tarea['fach']); ?> (Categoría antigua)</option>
+                    <?php endif; ?>
+                </select>
             </div>
 
             <div class="form-group">
