@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
 
 // 2. CARGAR LOS DATOS ACTUALES CUANDO ENTRAS A LA PÁGINA (GET)
 if (!isset($_GET['id'])) {
-    header("Location: ./modificar.php");
+    header("Location: modificar.php");
     exit;
 }
 
