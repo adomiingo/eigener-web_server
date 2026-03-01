@@ -117,8 +117,8 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
         <div class="footer-links">
-            <a href="index.php" class="btn-link">⬅ Volver a la Agenda</a>
-            <a href="dashboard.php" class="btn-link">📊 Ver Panel de Servidor</a>
+            <a href="./agendaMenu.html" class="btn-link">⬅ Volver a la Agenda</a>
+            <a href="../../estadoServer.php" class="btn-link">📊 Ver Panel de Servidor</a>
         </div>
     </div>
 </body>
