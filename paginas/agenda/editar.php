@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
     $stmt->execute([$betreff, $beschreibung, $fach, $daten, $id]);
 
     // Devolvemos al usuario a la agenda principal
-    header("Location: index.php");
+    header("Location: modificar.php");
     exit;
 }
 
