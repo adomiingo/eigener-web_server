@@ -66,7 +66,6 @@ if (isset($_GET['toggle'])) {
 $query_parts = [];
 $params = [];
 if (!empty($_GET['f_fach'])) { $query_parts[] = "fach = ?"; $params[] = $_GET['f_fach']; }
-if (!empty($_GET['f_zustand'])) { $query_parts[] = "zustand = ?"; $params[] = $_GET['f_zustand']; }
 
 $sql = "SELECT * FROM aufgaben";
 if (count($query_parts) > 0) { $sql .= " WHERE " . implode(" AND ", $query_parts); }
@@ -148,13 +147,6 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <option value="Sistemas" <?php if(@$_GET['f_fach']=='Sistemas') echo 'selected'; ?>>Sistemas
                     </option>
                     <option value="Web" <?php if(@$_GET['f_fach']=='Web') echo 'selected'; ?>>Web</option>
-                </select>
-                <select name="f_zustand">
-                    <option value="">Status</option>
-                    <option value="Ausstehen" <?php if(@$_GET['f_zustand']=='Ausstehen') echo 'selected'; ?>>Ausstehen
-                    </option>
-                    <option value="Erledigt" <?php if(@$_GET['f_zustand']=='Erledigt') echo 'selected'; ?>>Erledigt
-                    </option>
                 </select>
                 <button type="submit" style="margin:0; padding: 5px 15px; width: auto;">Filtern</button>
                 <a href="<?php echo $_SERVER['PHP_SELF']; ?>" style="font-size: 12px; align-self: center;">Limpiar</a>
