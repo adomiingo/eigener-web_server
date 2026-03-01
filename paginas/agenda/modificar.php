@@ -200,8 +200,7 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <a href="?toggle=<?php echo $t['id']; ?>&st=<?php echo $t['zustand']; ?>"
                                 class="btn-action btn-completar">✅</a>
 
-                            <a href="editar.php?id=<?php echo $t['id']; ?>" class="btn-action"
-                                style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">✏️</a>
+                            <a href="editar.php?id=<?php echo $t['id']; ?>" class="btn-action">✏️</a>
 
                             <a href="?delete=<?php echo $t['id']; ?>" class="btn-action btn-borrar">🗑️</a>
                         </td>
