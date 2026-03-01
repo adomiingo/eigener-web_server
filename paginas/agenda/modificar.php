@@ -34,25 +34,29 @@ if (isset($_GET['delete'])) {
 
 if (isset($_GET['toggle'])) {
     $id_tarea = $_GET['toggle'];
-    $nuevo_estado = ($_GET['st'] == 'Ausstehen') ? 'Erledigt' : 'Ausstehen';
+    $nuevo_estado = $_GET['st']; // Sabiendo que el botón envía el estado actual
     
-    // 1. Obtener los datos de la tarea ANTES de cambiarla
-    $stmt_info = $db->prepare("SELECT betreff, fach FROM aufgaben WHERE id = ?");
-    $stmt_info->execute([$id_tarea]);
-    $tarea = $stmt_info->fetch(PDO::FETCH_ASSOC);
+    // Si la tarea estaba pendiente y le damos a completar:
+    if ($nuevo_estado == 'Ausstehen') {
+        $hoy = date('Y-m-d');
+        
+        // 1. Copiamos los datos de la tarea original
+        $stmt_info = $db->prepare("SELECT betreff, beschreibung, fach, daten FROM aufgaben WHERE id = ?");
+        $stmt_info->execute([$id_tarea]);
+        $tarea = $stmt_info->fetch(PDO::FETCH_ASSOC);
+        
+        // 2. La insertamos en la tabla de archivo (Completadas)
+        $stmt_insert = $db->prepare("INSERT INTO completadas (betreff, beschreibung, fach, daten, fecha_completada) VALUES (?, ?, ?, ?, ?)");
+        $stmt_insert->execute([$tarea['betreff'], $tarea['beschreibung'], $tarea['fach'], $tarea['daten'], $hoy]);
+        
+        // 3. La eliminamos de la tabla principal
+        $stmt_del = $db->prepare("DELETE FROM aufgaben WHERE id = ?");
+        $stmt_del->execute([$id_tarea]);
 
-    // 2. Actualizamos el estado en la base de datos
-    $stmt = $db->prepare("UPDATE aufgaben SET zustand = ? WHERE id = ?");
-    $stmt->execute([$nuevo_estado, $id_tarea]);
-
-    // 3. Enviamos el mensaje de Telegram EXCLUSIVO de esa tarea
-    if ($nuevo_estado == 'Erledigt') {
-        $mensaje = "✅ *Tarea Completada*\nHas terminado: *" . $tarea['betreff'] . "* (" . $tarea['fach'] . ")";
-    } else {
-        $mensaje = "🔄 *Tarea Reabierta*\nVuelve a estar pendiente: *" . $tarea['betreff'] . "* (" . $tarea['fach'] . ")";
+        // 4. Enviamos el mensaje individual a Telegram
+        $mensaje = "✅ *Tarea Completada y Archivada*\nHas terminado: *" . $tarea['betreff'] . "* (" . $tarea['fach'] . ")";
+        enviar_telegram($mensaje);
     }
-    
-    enviar_telegram($mensaje);
 
     header("Location: " . $_SERVER['PHP_SELF']); 
     exit; 

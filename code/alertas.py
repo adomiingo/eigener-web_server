@@ -22,6 +22,13 @@ try:
     # Buscamos SOLAMENTE las tareas PENDIENTES ('Ausstehen')
     cursor.execute("SELECT betreff, fach, daten FROM aufgaben WHERE zustand = 'Ausstehen' ORDER BY daten ASC")
     tareas = cursor.fetchall()
+    cursor.execute("DELETE FROM completadas WHERE fecha_completada <= date('now', '-15 days')")
+    conexion.commit()
+    # --------------------------------------------
+    
+    # Buscamos SOLAMENTE las tareas PENDIENTES ('Ausstehen')
+    cursor.execute("SELECT betreff, fach, daten FROM aufgaben WHERE zustand = 'Ausstehen' ORDER BY daten ASC")
+    # ... (el resto sigue igual)
     
     if not tareas:
         print("📭 No hay tareas pendientes.")
