@@ -44,7 +44,7 @@ if (isset($_GET['toggle'])) {
         $hoy = date('Y-m-d');
 
         // 1. Copiamos los datos de la tarea original
-        $stmt_info = $db->prepare("SELECT betreff, beschreibung, fach, daten FROM aufgaben WHERE id = ?");
+        $stmt_info = $db->prepare("SELECT id, betreff, beschreibung, fach, daten FROM aufgaben WHERE id = ?");
         $stmt_info->execute([$id_tarea]);
         $tarea = $stmt_info->fetch(PDO::FETCH_ASSOC);
 
