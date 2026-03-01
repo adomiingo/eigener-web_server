@@ -163,8 +163,8 @@ th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform
                                 <span class="badge-date"><?php echo date("d-m-Y", strtotime($t['fecha_completada'])); ?></span>
                             </td>
                             <td>
-                                <a href="tareas_completadas.php?restaurar=<?php echo $t['id']; ?>" class="btn-action btn-restaurar" onclick="event.stopPropagation();" title="Devolver a la Agenda principal">♻️ Restaurar</a>
-                                <a <a href="tareas_completadas.php?borrar=<?php echo $t['id']; ?>" class="btn-action btn-borrar" onclick="event.stopPropagation();" title="Eliminar del servidor permanentemente">🗑️ Borrar</a>
+                                <a href="lista_completadas.php?restaurar=<?php echo $t['id']; ?>" class="btn-action btn-restaurar" onclick="event.stopPropagation();" title="Devolver a la Agenda principal">♻️ Restaurar</a>
+                                <a href="lista_completadas.php?borrar=<?php echo $t['id']; ?>" class="btn-action btn-borrar" onclick="event.stopPropagation();" title="Eliminar del servidor permanentemente">🗑️ Borrar</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
