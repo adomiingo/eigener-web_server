@@ -19,14 +19,14 @@ if (isset($_GET['restaurar'])) {
         $stmt_del = $db->prepare("DELETE FROM completadas WHERE id = ?");
         $stmt_del->execute([$id]);
     }
-    header("Location: tareas_completadas.php");
+    header("Location: lista_completadas.php");
     exit;
 }
 
 if (isset($_GET['borrar'])) {
     $stmt = $db->prepare("DELETE FROM completadas WHERE id = ?");
     $stmt->execute([$_GET['borrar']]);
-    header("Location: tareas_completadas.php");
+    header("Location: lista_completadas.php");
     exit;
 }
 
@@ -163,8 +163,8 @@ th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform
                                 <span class="badge-date"><?php echo date("d-m-Y", strtotime($t['fecha_completada'])); ?></span>
                             </td>
                             <td>
-    <a href="./lista_completadas echo $t['id']; ?>" class="btn-action btn-restaurar" onclick="event.stopPropagation();" title="Devolver a la Agenda principal">♻️ Restaurar</a>
-    <a href="./lista_completadas echo $t['id']; ?>" class="btn-action btn-borrar" onclick="event.stopPropagation();" title="Eliminar del servidor permanentemente">🗑️ Borrar</a>
+    <a href="lista_completadas.php?restaurar=<?php echo $t['id']; ?>" class="btn-action btn-restaurar" onclick="event.stopPropagation();" title="Devolver a la Agenda principal">♻️ Restaurar</a>
+    <a href="lista_completadas.php?borrar=<?php echo $t['id']; ?>" class="btn-action btn-borrar" onclick="event.stopPropagation();" title="Eliminar del servidor permanentemente">🗑️ Borrar</a>
 </td>
                         </tr>
                     <?php endforeach; ?>
