@@ -197,13 +197,12 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php echo htmlspecialchars($row['zustand']); ?>
                         </td>
                         <td>
-                            <a href="?toggle=<?php echo $t['id']; ?>&st=<?php echo $t['zustand']; ?>"
-                                class="btn-action btn-completar">✅</a>
+    <a href="?toggle=<?php echo $row['id']; ?>&st=<?php echo $row['zustand']; ?>" class="btn-action btn-completar" onclick="event.stopPropagation();">✅</a>
 
-                            <a href="editar.php?id=<?php echo $t['id']; ?>" class="btn-action">✏️</a>
+    <a href="editar.php?id=<?php echo $row['id']; ?>" class="btn-action" onclick="event.stopPropagation();">✏️</a>
 
-                            <a href="?delete=<?php echo $t['id']; ?>" class="btn-action btn-borrar">🗑️</a>
-                        </td>
+    <a href="?delete=<?php echo $row['id']; ?>" class="btn-action btn-borrar" onclick="event.stopPropagation();">🗑️</a>
+</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
