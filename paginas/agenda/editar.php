@@ -91,7 +91,7 @@ if (!$tarea) {
             </div>
 
             <div class="btn-group">
-                <a href="./modificar.php" class="btn btn-cancel">❌ Cancelar</a>
+                <a href="modificar.php" class="btn btn-cancel">❌ Cancelar</a>
                 <button type="submit" class="btn btn-save">💾 Guardar Cambios</button>
             </div>
         </form>
