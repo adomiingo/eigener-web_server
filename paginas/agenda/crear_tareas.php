@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
         <div style="display: flex; gap: 15px; margin-bottom: 25px;">
             <a href="./agendaMenu.php" class="btn-link" style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem; background: linear-gradient(135deg, #6c757d, #495057);">
-                <?php echo $lang['btn_atras']; ?>
+                <?php echo $lang['volver']; ?>
             </a>
             <a href="../../index.php" class="btn-link" style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem;">
                 <?php echo $lang['inicio']; ?>
