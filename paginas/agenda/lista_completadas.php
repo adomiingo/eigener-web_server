@@ -33,7 +33,49 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title><?php echo $lang['historial_titulo']; ?></title>
-    <style> /* TU CSS ANTERIOR INTACTO */ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #334155; padding: 20px; } .container { max-width: 800px; margin: auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-top: 5px solid #10b981; } h1 { text-align: center; color: #10b981; } .info-text { text-align: center; font-size: 0.9em; color: #64748b; margin-bottom: 25px; } #buscadorJS { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; margin-bottom: 20px; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { padding: 15px; text-align: left; border-bottom: 1px solid #f1f5f9; } .btn-action { text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-right: 5px; } .btn-restaurar { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; } .btn-borrar { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; } .empty-msg { text-align: center; color: #94a3b8; margin: 40px 0; font-style: italic; background: #f8fafc; padding: 30px; border-radius: 8px; } .footer-links { margin-top: 30px; display: flex; gap: 15px; } .btn-link { background: #e2e8f0; color: #475569; padding: 12px; text-decoration: none; border-radius: 6px; text-align: center; flex: 1; } .badge-date { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; } </style>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #334155; padding: 20px; margin: 0; box-sizing: border-box; }
+        .container { max-width: 800px; margin: auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-top: 5px solid #10b981; box-sizing: border-box; }
+        h1 { text-align: center; color: #10b981; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; }
+        .info-text { text-align: center; font-size: 0.9em; color: #64748b; margin-bottom: 25px; }
+        .buscador-container { margin-bottom: 20px; }
+        #buscadorJS { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; box-sizing: border-box; outline: none; transition: border-color 0.3s; }
+        #buscadorJS:focus { border-color: #10b981; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #f1f5f9; word-wrap: break-word; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .task-row { cursor: pointer; transition: all 0.3s ease; }
+        .task-row:hover { background-color: #f1f5f9; }
+        .task-row.expanded { transform: scale(1.02); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.12); background-color: #ffffff; z-index: 10; position: relative; }
+        .task-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; font-size: 0.9rem; color: #475569; }
+        .task-row.expanded .task-details { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-action { text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-right: 5px; display: inline-block; transition: 0.2s; box-sizing: border-box; }
+        .btn-restaurar { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+        .btn-restaurar:hover { background: #bae6fd; color: #0369a1; }
+        .btn-borrar { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
+        .btn-borrar:hover { background: #fecaca; color: #dc2626; }
+        .empty-msg { text-align: center; color: #94a3b8; margin: 40px 0; font-style: italic; background: #f8fafc; padding: 30px; border-radius: 8px; }
+        .footer-links { margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; }
+        .btn-link { background: #e2e8f0; color: #475569; padding: 12px; text-decoration: none; border-radius: 6px; text-align: center; flex: 1; min-width: 120px; font-weight: 500; transition: 0.2s; }
+        .btn-link:hover { background: #cbd5e1; color: #0f172a; }
+        .badge-date { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+        
+        /* 📱 MODO MÓVIL */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            table, thead, tbody, th, td, tr { display: block; width: 100%; box-sizing: border-box; }
+            thead tr { display: none; }
+            tr.task-row { margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; background: #fff; }
+            .task-row.expanded { transform: none; border-left: 4px solid #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1); }
+            td { padding: 5px 0; border: none; }
+            td:first-child { border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; margin-bottom: 10px; }
+            td:nth-child(2), td:nth-child(3) { display: inline-block; margin-right: 15px; width: auto; }
+            td:last-child { display: flex; gap: 10px; margin-top: 15px; }
+            .btn-action { flex: 1; text-align: center; margin: 0; padding: 10px; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">

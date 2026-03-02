@@ -1,6 +1,6 @@
 <?php
 // Subimos un nivel en las carpetas para encontrar el motor de idiomas
-require_once '../diccionarios/idioma.php'; 
+require_once '../../idiomas.php';
 
 $db_path = "/var/www/ubungen/kalender.db";
 try {
