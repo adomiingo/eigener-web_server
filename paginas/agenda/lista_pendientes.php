@@ -114,6 +114,80 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .lang-btn.active { background-color: #0284c7; color: white; }
         .lang-btn.inactive { background-color: #e2e8f0; color: #475569; }
         .lang-btn.inactive:hover { background-color: #cbd5e1; }
+        @media (max-width: 768px) {
+    /* 1. Ajustes de márgenes generales */
+    body { padding: 10px; }
+    #principal, .container { padding: 15px; width: 100%; box-sizing: border-box; }
+
+    /* 2. Destruimos la estructura de tabla tradicional */
+    table, thead, tbody, th, td, tr { display: block; width: 100%; box-sizing: border-box; }
+    
+    /* 3. Ocultamos la cabecera (Tarea, Asignatura, etc.) porque se sobreentiende */
+    thead tr { display: none; }
+
+    /* 4. Convertimos cada fila en una tarjeta visual */
+    tr.task-row { 
+        margin-bottom: 20px; 
+        border: 1px solid #cbd5e1; 
+        border-radius: 10px; 
+        padding: 15px; 
+        background: #ffffff; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* 5. Quitamos el efecto "zoom" al expandir para que no se salga de la pantalla */
+    .task-row.expanded { 
+        transform: none; 
+        border-left: 4px solid #0284c7; 
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15); 
+    }
+
+    /* 6. Ajustamos el contenido de las celdas */
+    td { padding: 8px 0; border: none !important; text-align: left; }
+    
+    /* El título de la tarea */
+    td:first-child { 
+        border-bottom: 1px dashed #e2e8f0 !important; 
+        padding-bottom: 12px; 
+        margin-bottom: 10px; 
+        font-size: 1.1rem;
+    }
+    
+    /* Asignatura y Estado en la misma línea */
+    td:nth-child(2), td:nth-child(3) { 
+        display: inline-block; 
+        margin-right: 15px; 
+        width: auto; 
+        font-size: 0.9rem;
+    }
+
+    /* 7. Botones de acción: Flexibles y grandes para tocarlos con el dedo */
+    td:last-child { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 8px; 
+        margin-top: 15px; 
+        justify-content: space-between;
+    }
+    .btn-action { 
+        flex: 1; 
+        text-align: center; 
+        margin: 0; 
+        padding: 12px 5px; /* Más altos para "tocar" más fácil */
+        font-size: 0.9rem;
+    }
+
+    /* 8. Botones de navegación (Atrás, Inicio) apilados verticalmente */
+    .footer-links, div[style*="display: flex; gap: 15px"] { 
+        flex-direction: column !important; 
+        gap: 10px !important; 
+    }
+    .btn-link { 
+        width: 100%; 
+        box-sizing: border-box; 
+    }
+}
+
     </style>
 </head>
 
@@ -186,12 +260,12 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
             style="text-decoration:none; display:block; text-align:center; padding:12px;"><?php echo $lang['nueva_tarea']; ?></a>
 
         <div style="display: flex; gap: 15px; margin-bottom: 25px; margin-top: 5px;">
-            <a href="./agendaMenu.html" class="btn-link"
+            <a href="./agendaMenu.php" class="btn-link"
                 style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem; background: linear-gradient(135deg, #6c757d, #495057);">
                 ⬅ <?php echo $lang['volver']; ?>
             </a>
 
-            <a href="../../index.html" class="btn-link"
+            <a href="../../index.php" class="btn-link"
                 style="margin-top: 0; flex: 1; padding: 10px; font-size: 0.9rem;">
                 <?php echo $lang['inicio']; ?>
             </a>
