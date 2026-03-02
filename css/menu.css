@@ -68,6 +68,31 @@ body {
     box-shadow: none;
 }
 
+/* ===== BOTÓN ROTATIVO DE IDIOMA ===== */
+.btn-lang-cycle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #ffffff;
+    border: 2px solid #e2e8f0;
+    color: #475569;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.btn-lang-cycle:hover {
+    background-color: #f8fafc;
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     #principal {
@@ -89,5 +114,13 @@ body {
     .btn-link {
         font-size: 0.9rem;
         padding: 12px;
+    }
+    
+    /* Ajuste del botón de idioma para móviles */
+    .btn-lang-cycle {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
     }
 }
