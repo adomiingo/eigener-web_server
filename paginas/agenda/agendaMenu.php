@@ -33,11 +33,14 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
 
 <body>
 
-    <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
-        <?php echo $bandera_mostrar; ?> ↻
-    </a>
+    
 
     <div id="principal">
+        <div class="lang-switcher">
+            <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+            <?php echo $bandera_mostrar; ?> ↻
+        </a>
+        </div>
         <h2><?php echo isset($lang['menu_acciones']) ? $lang['menu_acciones'] : 'Aktionen'; ?></h2>
 
         <nav class="menu-container">

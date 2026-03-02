@@ -25,6 +25,7 @@ body {
     border-radius: 14px;
     box-shadow: 0 10px 30px rgba(0, 90, 180, 0.12);
     transition: 0.3s ease;
+    position: relative; /* <--- ESTA ES LA CLAVE */
 }
 
 /* ===== TÍTULO ===== */
