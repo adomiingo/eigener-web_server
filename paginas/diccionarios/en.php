@@ -75,6 +75,11 @@ $lang = [
     "title_disparador" => "🤖 Manual Telegram Trigger",
     "desc_disparador" => "Run the Python script to scan pending tasks and send notifications right now.",
     "btn_ejecutar_python" => "▶️ Run Python Script",
-    "btn_pagina_principal" => "⬅ Main Page"
+    "btn_pagina_principal" => "⬅ Main Page",
+    "titulo_visualizar" => "Choose Progress",
+    "h2_visualizar" => "What do you want to view?",
+    "btn_peso_frente" => "Weight - Front View",
+    "btn_peso_perfil" => "Weight - Side View",
+    "btn_musculo" => "Muscle Progress",
 ];
 ?>

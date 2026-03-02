@@ -75,6 +75,11 @@ $lang = [
     "title_disparador" => "🤖 Manueller Telegram-Auslöser",
     "desc_disparador" => "Führt das Python-Skript aus, um anstehende Aufgaben jetzt zu scannen.",
     "btn_ejecutar_python" => "▶️ Python-Skript ausführen",
-    "btn_pagina_principal" => "⬅ Hauptseite"
+    "btn_pagina_principal" => "⬅ Hauptseite",
+    "titulo_visualizar" => "Fortschritt wählen",
+    "h2_visualizar" => "Was möchtest du sehen?",
+    "btn_peso_frente" => "Gewicht - Frontansicht",
+    "btn_peso_perfil" => "Gewicht - Seitenansicht",
+    "btn_musculo" => "Muskelfortschritt",
 ];
 ?>

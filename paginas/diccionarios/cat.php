@@ -75,6 +75,11 @@ $lang = [
     "title_disparador" => "🤖 Disparador Manual de Telegram",
     "desc_disparador" => "Executa l'script de Python per escanejar tasques pendents ara mateix.",
     "btn_ejecutar_python" => "▶️ Executar Script Python",
-    "btn_pagina_principal" => "⬅ Pàgina principal"
+    "btn_pagina_principal" => "⬅ Pàgina principal",
+    "titulo_visualizar" => "Triar Progrés",
+    "h2_visualizar" => "Què vols visualitzar?",
+    "btn_peso_frente" => "Pes - Vista Frontal",
+    "btn_peso_perfil" => "Pes - Vista Perfil",
+    "btn_musculo" => "Progrés Muscular",
 ];
 ?>
