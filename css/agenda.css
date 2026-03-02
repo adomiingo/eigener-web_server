@@ -253,3 +253,26 @@ td {
         font-size: 1.1rem;
     }
 }
+
+.btn-lang-cycle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #ffffff;
+    border: 2px solid #e2e8f0;
+    color: #475569;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+.btn-lang-cycle:hover {
+    background-color: #f8fafc;
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
