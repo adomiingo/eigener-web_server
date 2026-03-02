@@ -1,5 +1,5 @@
 <?php
-// Subimos un nivel en las carpetas para encontrar el motor de idiomas
+// Subimos dos niveles en las carpetas para encontrar el motor de idiomas
 require_once '../../idiomas.php';
 
 $db_path = "/var/www/ubungen/kalender.db";
@@ -107,96 +107,132 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Botón de idioma rotativo */
+        .btn-lang-cycle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .btn-lang-cycle:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
         
-        /* Estilos rápidos para el selector de idioma */
-        .lang-btn.active { background-color: #0284c7; color: white; }
-        .lang-btn.inactive { background-color: #e2e8f0; color: #475569; }
-        .lang-btn.inactive:hover { background-color: #cbd5e1; }
         @media (max-width: 768px) {
-    /* 1. Ajustes de márgenes generales */
-    body { padding: 10px; }
-    #principal, .container { padding: 15px; width: 100%; box-sizing: border-box; }
+            /* 1. Ajustes de márgenes generales */
+            body { padding: 10px; }
+            #principal, .container { padding: 15px; width: 100%; box-sizing: border-box; }
 
-    /* 2. Destruimos la estructura de tabla tradicional */
-    table, thead, tbody, th, td, tr { display: block; width: 100%; box-sizing: border-box; }
-    
-    /* 3. Ocultamos la cabecera (Tarea, Asignatura, etc.) porque se sobreentiende */
-    thead tr { display: none; }
+            /* 2. Destruimos la estructura de tabla tradicional */
+            table, thead, tbody, th, td, tr { display: block; width: 100%; box-sizing: border-box; }
+            
+            /* 3. Ocultamos la cabecera porque se sobreentiende */
+            thead tr { display: none; }
 
-    /* 4. Convertimos cada fila en una tarjeta visual */
-    tr.task-row { 
-        margin-bottom: 20px; 
-        border: 1px solid #cbd5e1; 
-        border-radius: 10px; 
-        padding: 15px; 
-        background: #ffffff; 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
+            /* 4. Convertimos cada fila en una tarjeta visual */
+            tr.task-row { 
+                margin-bottom: 20px; 
+                border: 1px solid #cbd5e1; 
+                border-radius: 10px; 
+                padding: 15px; 
+                background: #ffffff; 
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
 
-    /* 5. Quitamos el efecto "zoom" al expandir para que no se salga de la pantalla */
-    .task-row.expanded { 
-        transform: none; 
-        border-left: 4px solid #0284c7; 
-        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15); 
-    }
+            /* 5. Quitamos el efecto "zoom" al expandir para que no se salga de la pantalla */
+            .task-row.expanded { 
+                transform: none; 
+                border-left: 4px solid #0284c7; 
+                box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15); 
+            }
 
-    /* 6. Ajustamos el contenido de las celdas */
-    td { padding: 8px 0; border: none !important; text-align: left; }
-    
-    /* El título de la tarea */
-    td:first-child { 
-        border-bottom: 1px dashed #e2e8f0 !important; 
-        padding-bottom: 12px; 
-        margin-bottom: 10px; 
-        font-size: 1.1rem;
-    }
-    
-    /* Asignatura y Estado en la misma línea */
-    td:nth-child(2), td:nth-child(3) { 
-        display: inline-block; 
-        margin-right: 15px; 
-        width: auto; 
-        font-size: 0.9rem;
-    }
+            /* 6. Ajustamos el contenido de las celdas */
+            td { padding: 8px 0; border: none !important; text-align: left; }
+            
+            /* El título de la tarea */
+            td:first-child { 
+                border-bottom: 1px dashed #e2e8f0 !important; 
+                padding-bottom: 12px; 
+                margin-bottom: 10px; 
+                font-size: 1.1rem;
+            }
+            
+            /* Asignatura y Estado en la misma línea */
+            td:nth-child(2), td:nth-child(3) { 
+                display: inline-block; 
+                margin-right: 15px; 
+                width: auto; 
+                font-size: 0.9rem;
+            }
 
-    /* 7. Botones de acción: Flexibles y grandes para tocarlos con el dedo */
-    td:last-child { 
-        display: flex; 
-        flex-wrap: wrap; 
-        gap: 8px; 
-        margin-top: 15px; 
-        justify-content: space-between;
-    }
-    .btn-action { 
-        flex: 1; 
-        text-align: center; 
-        margin: 0; 
-        padding: 12px 5px; /* Más altos para "tocar" más fácil */
-        font-size: 0.9rem;
-    }
+            /* 7. Botones de acción: Flexibles y grandes para tocarlos con el dedo */
+            td:last-child { 
+                display: flex; 
+                flex-wrap: wrap; 
+                gap: 8px; 
+                margin-top: 15px; 
+                justify-content: space-between;
+            }
+            .btn-action { 
+                flex: 1; 
+                text-align: center; 
+                margin: 0; 
+                padding: 12px 5px; 
+                font-size: 0.9rem;
+            }
 
-    /* 8. Botones de navegación (Atrás, Inicio) apilados verticalmente */
-    .footer-links, div[style*="display: flex; gap: 15px"] { 
-        flex-direction: column !important; 
-        gap: 10px !important; 
-    }
-    .btn-link { 
-        width: 100%; 
-        box-sizing: border-box; 
-    }
-}
-
+            /* 8. Botones de navegación (Atrás, Inicio) apilados verticalmente */
+            .footer-links, div[style*="display: flex; gap: 15px"] { 
+                flex-direction: column !important; 
+                gap: 10px !important; 
+            }
+            .btn-link { 
+                width: 100%; 
+                box-sizing: border-box; 
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div id="principal" style="max-width: 800px;">
+    <?php 
+        $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
         
-        <div class="lang-switcher">
-            <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
-            <?php echo $bandera_mostrar; ?> ↻
-        </a>
-        </div>
+        $rotacion = [
+            'cat' => 'de',
+            'de'  => 'en',
+            'en'  => 'es',
+            'es'  => 'cat'
+        ];
+        $siguiente_idioma = isset($rotacion[$idioma_actual]) ? $rotacion[$idioma_actual] : 'de';
+        
+        $banderas = [
+            'cat' => 'CAT',
+            'de'  => '🇩🇪 DE',
+            'en'  => '🇬🇧 EN',
+            'es'  => '🇪🇸 ES'
+        ];
+        $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] : '🇩🇪 DE';
+    ?>
+    <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+        <?php echo $bandera_mostrar; ?> ↻
+    </a>
+
+    <div id="principal" style="max-width: 800px; position: relative;">
 
         <h2><?php echo $lang['titulo_lista']; ?></h2>
 
@@ -254,8 +290,8 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </table>
 
         <br>
-        <a href="./agenda.php" class="btn-link"
-            style="text-decoration:none; display:block; text-align:center; padding:12px;"><?php echo $lang['nueva_tarea']; ?></a>
+        <a href="./crear_tareas.php" class="btn-link"
+            style="text-decoration:none; display:block; text-align:center; padding:12px; margin-bottom: 25px;"><?php echo $lang['nueva_tarea']; ?></a>
 
         <div style="display: flex; gap: 15px; margin-bottom: 25px; margin-top: 5px;">
             <a href="./agendaMenu.php" class="btn-link"
