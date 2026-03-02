@@ -34,7 +34,7 @@ require_once 'idiomas.php';
         <h2><?php echo isset($lang['menu_principal']) ? $lang['menu_principal'] : 'Menú Principal'; ?></h2>
         
         <nav class="menu-container">
-            <a href="./paginas/agenda/agendaMenu.html" class="btn-link"><?php echo isset($lang['btn_agenda']) ? $lang['btn_agenda'] : 'Agenda'; ?></a>
+            <a href="./paginas/agenda/agendaMenu.php" class="btn-link"><?php echo isset($lang['btn_agenda']) ? $lang['btn_agenda'] : 'Agenda'; ?></a>
             <a href="./paginas/Personal/readme.txt" class="btn-link"><?php echo isset($lang['btn_personal']) ? $lang['btn_personal'] : 'Personal'; ?></a>
             <a href="academico.php" class="btn-link"><?php echo isset($lang['btn_academico']) ? $lang['btn_academico'] : 'Académico'; ?></a>
             <a href="./paginas/estadoServer.php" class="btn-link"><?php echo isset($lang['btn_estado_server']) ? $lang['btn_estado_server'] : 'Estado del servidor'; ?></a>
