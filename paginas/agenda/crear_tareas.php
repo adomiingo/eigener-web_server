@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <button type="submit"><?php echo $lang['btn_guardar']; ?></button>
 
-            <a href="./lista_pendientes.php" style="text-align:center; display:block; margin-top:15px; color:#2a6df4; text-decoration:none; font-weight: 500;">
+            <a href="./lista_pendientes.php" style="text-align:center; margin-bottom: 3px;display:block; margin-top:15px; color:#2a6df4; text-decoration:none; font-weight: 500;">
                 <?php echo $lang['link_ver_lista']; ?>
             </a>
         </form>
