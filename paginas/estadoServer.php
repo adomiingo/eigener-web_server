@@ -30,11 +30,173 @@ try {
 <html lang="<?php echo isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de'; ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $lang['estado_titulo']; ?></title>
-    <style> body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; padding: 20px; margin: 0; } .container { max-width: 900px; margin: auto; background: #ffffff; padding: 40px; border-radius: 12px; } h1, h3 { color: #0284c7; text-align: center; } .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; } .card { padding: 25px 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-top: 4px solid #0284c7; text-align: center; } .log-wrapper { background: #f8fafc; padding: 20px; margin-bottom: 30px; } .log-terminal { background: #0f172a; color: #38bdf8; font-family: monospace; padding: 15px; height: 200px; overflow-y: auto; white-space: pre-wrap; } .action-section { background: #f0f9ff; padding: 25px; text-align: center; } .btn-run { background-color: #0284c7; color: white; padding: 12px 25px; cursor: pointer; border:none; border-radius: 6px; } .btn-link { background: #e2e8f0; color: #475569; padding: 10px 25px; text-decoration: none; border-radius: 6px; } </style>
+    
+    <style> 
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f0f4f8; 
+            padding: 20px; 
+            margin: 0; 
+            box-sizing: border-box;
+        } 
+        
+        .container { 
+            max-width: 900px; 
+            margin: auto; 
+            background: #ffffff; 
+            padding: 40px; 
+            border-radius: 12px; 
+            position: relative; /* Clave para el botón rotativo */
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        } 
+        
+        h1, h3 { 
+            color: #0284c7; 
+            text-align: center; 
+        } 
+        
+        .grid { 
+            display: grid; 
+            /* Esto hace que las tarjetas se adapten solas, pero en móvil forzaremos 1 sola columna */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+            margin: 30px 0; 
+        } 
+        
+        .card { 
+            padding: 25px 20px; 
+            border-radius: 10px; 
+            border: 1px solid #e2e8f0; 
+            border-top: 4px solid #0284c7; 
+            text-align: center; 
+            background: #f8fafc;
+        } 
+        .card p { font-size: 1.1rem; font-weight: bold; margin-top: 10px; color: #334155; }
+        
+        .log-wrapper { 
+            background: #f8fafc; 
+            padding: 20px; 
+            margin-bottom: 30px; 
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        } 
+        
+        .log-terminal { 
+            background: #0f172a; 
+            color: #38bdf8; 
+            font-family: monospace; 
+            padding: 15px; 
+            height: 200px; 
+            overflow-y: auto; 
+            white-space: pre-wrap;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        } 
+        
+        .action-section { 
+            background: #f0f9ff; 
+            padding: 25px; 
+            text-align: center; 
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+        } 
+        
+        .btn-run { 
+            background-color: #0284c7; 
+            color: white; 
+            padding: 12px 25px; 
+            cursor: pointer; 
+            border:none; 
+            border-radius: 6px; 
+            font-weight: bold;
+            transition: background 0.2s;
+        } 
+        .btn-run:hover { background-color: #0369a1; }
+        
+        .btn-link { 
+            background: #e2e8f0; 
+            color: #475569; 
+            padding: 12px 25px; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            display: inline-block;
+            font-weight: 500;
+        } 
+        
+        .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .alert.success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
+
+        /* Botón de idioma rotativo */
+        .btn-lang-cycle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .btn-lang-cycle:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        /* 📱 RESPONSIVE PARA MÓVILES */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 20px; }
+            
+            /* Ajuste de botón idioma */
+            .btn-lang-cycle {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            
+            h1 { margin-top: 20px; font-size: 1.6rem; }
+            
+            /* Hacemos que la grid sea 1 sola columna en vertical */
+            .grid { 
+                grid-template-columns: 1fr; 
+                gap: 15px; 
+            }
+            
+            .card { padding: 15px; }
+            
+            .log-wrapper, .action-section { padding: 15px; }
+            .log-terminal { font-size: 0.75rem; height: 250px; } /* Más pequeño para que quepa la ruta larga sin scroll horizontal excesivo */
+            
+            .btn-run, .btn-link { width: 100%; box-sizing: border-box; display: block; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+        
+        <?php 
+            $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
+            $rotacion = ['cat' => 'de', 'de'  => 'en', 'en'  => 'es', 'es'  => 'cat'];
+            $siguiente_idioma = isset($rotacion[$idioma_actual]) ? $rotacion[$idioma_actual] : 'de';
+            $banderas = ['cat' => 'CAT', 'de'  => '🇩🇪 DE', 'en'  => '🇬🇧 EN', 'es'  => '🇪🇸 ES'];
+            $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] : '🇩🇪 DE';
+        ?>
+        <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+            <?php echo $bandera_mostrar; ?> ↻
+        </a>
+
         <h1><?php echo $lang['estado_titulo']; ?></h1>
         <?php echo $mensaje_accion; ?>
 
@@ -57,8 +219,10 @@ try {
         </div>
 
         <div class="footer-links" style="text-align:center; margin-top:30px;">
-            <a href="../index.php" class="btn-link"><?php echo $lang['btn_pagina_principal']; ?></a> </div>
+            <a href="../index.php" class="btn-link"><?php echo $lang['btn_pagina_principal']; ?></a> 
+        </div>
     </div>
+    
     <script>
         function fetchLog() {
             fetch('?get_log=1').then(response => response.text()).then(data => {
