@@ -41,10 +41,11 @@ $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_sel
 
     <div id="principal">
 
-        <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+        <div class="lang-switcher">
+            <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
             <?php echo $bandera_mostrar; ?> ↻
         </a>
-
+        </div>
         <h2><?php echo isset($lang['menu_acciones']) ? $lang['menu_acciones'] : 'Aktionen'; ?></h2>
 
         <nav class="menu-container">

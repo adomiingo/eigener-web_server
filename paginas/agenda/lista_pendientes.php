@@ -109,8 +109,6 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         
         /* Estilos rápidos para el selector de idioma */
-        .lang-switcher { text-align: right; margin-bottom: 15px; }
-        .lang-btn { text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; margin-left: 5px; transition: 0.2s; }
         .lang-btn.active { background-color: #0284c7; color: white; }
         .lang-btn.inactive { background-color: #e2e8f0; color: #475569; }
         .lang-btn.inactive:hover { background-color: #cbd5e1; }
@@ -195,9 +193,9 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div id="principal" style="max-width: 800px;">
         
         <div class="lang-switcher">
-            <?php $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de'; ?>
-            <a href="?lang=es" class="lang-btn <?php echo $idioma_actual == 'es' ? 'active' : 'inactive'; ?>">🇪🇸 ES</a>
-            <a href="?lang=de" class="lang-btn <?php echo $idioma_actual == 'de' ? 'active' : 'inactive'; ?>">🇩🇪 DE</a>
+            <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+            <?php echo $bandera_mostrar; ?> ↻
+        </a>
         </div>
 
         <h2><?php echo $lang['titulo_lista']; ?></h2>
