@@ -32,6 +32,8 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html lang="<?php echo isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de'; ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title><?php echo $lang['historial_titulo']; ?></title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #334155; padding: 20px; margin: 0; box-sizing: border-box; }
@@ -61,7 +63,7 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn-link:hover { background: #cbd5e1; color: #0f172a; }
         .badge-date { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
         
-        /* 📱 MODO MÓVIL */
+        /* 📱 MODO MÓVIL OPTIMIZADO */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .container { padding: 15px; }
@@ -72,8 +74,14 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             td { padding: 5px 0; border: none; }
             td:first-child { border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; margin-bottom: 10px; }
             td:nth-child(2), td:nth-child(3) { display: inline-block; margin-right: 15px; width: auto; }
-            td:last-child { display: flex; gap: 10px; margin-top: 15px; }
-            .btn-action { flex: 1; text-align: center; margin: 0; padding: 10px; }
+            
+            /* Ajuste para que los botones en móvil se vean perfectos */
+            td:last-child { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
+            .btn-action { flex: 1; text-align: center; margin: 0; padding: 10px 5px; min-width: 45%; }
+            
+            /* Ajuste de enlaces inferiores */
+            .footer-links { flex-direction: column; gap: 10px; }
+            .btn-link { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
