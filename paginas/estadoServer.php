@@ -43,12 +43,12 @@ try {
         } 
         
         .container { 
-            max-width: 900px; 
+            max-width: 1000px; /* Ampliado ligeramente para que las 4 tarjetas respiren mejor en PC */
             margin: auto; 
             background: #ffffff; 
             padding: 40px; 
             border-radius: 12px; 
-            position: relative; 
+            position: relative; /* Clave para el botón rotativo */
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         } 
@@ -58,9 +58,11 @@ try {
             text-align: center; 
         } 
         
+        /* SOLUCIÓN AL PROBLEMA DE LOS HUECOS */
         .grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            /* Forzamos 4 columnas de igual tamaño (1 fraction cada una) */
+            grid-template-columns: repeat(4, 1fr); 
             gap: 20px; 
             margin: 30px 0; 
         } 
@@ -72,6 +74,8 @@ try {
             border-top: 4px solid #0284c7; 
             text-align: center; 
             background: #f8fafc;
+            /* Aseguramos que el contenido interno se adapte si es muy largo */
+            word-wrap: break-word; 
         } 
         .card p { font-size: 1.1rem; font-weight: bold; margin-top: 10px; color: #334155; }
         
@@ -152,8 +156,15 @@ try {
             color: #0f172a;
         }
 
-        /* 📱 RESPONSIVE PARA MÓVILES */
-        @media (max-width: 768px) {
+        /* 📱 RESPONSIVE PARA TABLETS (Si la pantalla baja de 900px, pasamos a 2 columnas) */
+        @media (max-width: 900px) {
+            .grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+
+        /* 📱 RESPONSIVE PARA MÓVILES (Si la pantalla baja de 600px, pasamos a 1 columna) */
+        @media (max-width: 600px) {
             body { padding: 10px; }
             .container { padding: 20px; }
             
