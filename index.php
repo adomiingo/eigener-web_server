@@ -88,14 +88,26 @@ $pc_encendido = ($resultado_ping === 0);
 
         .status-circle.online {
             background-color: #22c55e; /* Verde */
-            animation: pulse-green 1.5s infinite; /* Intermitencia */
+            animation: pulse-lila 1.5s infinite; /* Intermitencia */
         }
 
         /* Animación del parpadeo verde */
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        @keyframes pulse-lila {
+            0% {
+                /* Opacidad al 100% y sombra lila inicial */
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); /* Sombra lila suave */
+            }
+            70% {
+                /* Sombra lila se expande y el círculo empieza a atenuarse */
+                opacity: 0.6;
+                box-shadow: 0 0 0 15px rgba(168, 85, 247, 0); /* Sombra transparente al expandirse */
+            }
+            100% {
+                /* Fin de la animación, listo para reiniciar */
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+            }
         }
 
         /* Botón del menú de Werkstatt */
