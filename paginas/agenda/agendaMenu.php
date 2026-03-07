@@ -30,7 +30,7 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
     <title><?php echo isset($lang['titulo_agenda_menu']) ? $lang['titulo_agenda_menu'] : 'Erinnerungen Machen'; ?></title>
     <link rel="stylesheet" href="../../css/menu.css">
     <style>
-        /* Botón de idioma rotativo en la esquina superior derecha */
+        /* Botón de idioma rotativo en la esquina de la pantalla */
         .btn-lang-cycle {
             position: absolute;
             top: 20px;
@@ -55,7 +55,7 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
             color: #0f172a;
         }
 
-        /* Ajuste del botón para que no se salga en móviles */
+        /* Ajuste para que en móviles también se pegue a la esquina del teléfono */
         @media (max-width: 480px) {
             .btn-lang-cycle {
                 top: 10px;
@@ -69,11 +69,11 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
 
 <body>
 
-    <div id="principal">
-        <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
-            <?php echo $bandera_mostrar; ?> ↻
-        </a>
+    <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+        <?php echo $bandera_mostrar; ?> ↻
+    </a>
 
+    <div id="principal">
         <h2><?php echo isset($lang['menu_acciones']) ? $lang['menu_acciones'] : 'Aktionen'; ?></h2>
 
         <nav class="menu-container">
