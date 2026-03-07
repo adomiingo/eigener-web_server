@@ -48,7 +48,7 @@ try {
             background: #ffffff; 
             padding: 40px; 
             border-radius: 12px; 
-            position: relative; /* Clave para el botón rotativo */
+            position: relative; 
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         } 
@@ -60,7 +60,6 @@ try {
         
         .grid { 
             display: grid; 
-            /* Esto hace que las tarjetas se adapten solas, pero en móvil forzaremos 1 sola columna */
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
             gap: 20px; 
             margin: 30px 0; 
@@ -177,26 +176,26 @@ try {
             .card { padding: 15px; }
             
             .log-wrapper, .action-section { padding: 15px; }
-            .log-terminal { font-size: 0.75rem; height: 250px; } /* Más pequeño para que quepa la ruta larga sin scroll horizontal excesivo */
+            .log-terminal { font-size: 0.75rem; height: 250px; } 
             
             .btn-run, .btn-link { width: 100%; box-sizing: border-box; display: block; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        
-        <?php 
-            $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
-            $rotacion = ['cat' => 'de', 'de'  => 'en', 'en'  => 'es', 'es'  => 'cat'];
-            $siguiente_idioma = isset($rotacion[$idioma_actual]) ? $rotacion[$idioma_actual] : 'de';
-            $banderas = ['cat' => 'CAT', 'de'  => '🇩🇪 DE', 'en'  => '🇬🇧 EN', 'es'  => '🇪🇸 ES'];
-            $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] : '🇩🇪 DE';
-        ?>
-        <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
-            <?php echo $bandera_mostrar; ?> ↻
-        </a>
+    
+    <?php 
+        $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
+        $rotacion = ['cat' => 'de', 'de'  => 'en', 'en'  => 'es', 'es'  => 'cat'];
+        $siguiente_idioma = isset($rotacion[$idioma_actual]) ? $rotacion[$idioma_actual] : 'de';
+        $banderas = ['cat' => 'CAT', 'de'  => '🇩🇪 DE', 'en'  => '🇬🇧 EN', 'es'  => '🇪🇸 ES'];
+        $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] : '🇩🇪 DE';
+    ?>
+    <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+        <?php echo $bandera_mostrar; ?> ↻
+    </a>
 
+    <div class="container">
         <h1><?php echo $lang['estado_titulo']; ?></h1>
         <?php echo $mensaje_accion; ?>
 
