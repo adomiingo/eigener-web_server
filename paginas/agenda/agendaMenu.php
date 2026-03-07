@@ -30,7 +30,6 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
     <title><?php echo isset($lang['titulo_agenda_menu']) ? $lang['titulo_agenda_menu'] : 'Erinnerungen Machen'; ?></title>
     <link rel="stylesheet" href="../../css/menu.css">
     <style>
-        /* Estilos rápidos para que el selector de idiomas encaje bien en el menú principal */
         /* Botón de idioma rotativo en la esquina superior derecha */
         .btn-lang-cycle {
             position: absolute;
@@ -56,34 +55,25 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
             color: #0f172a;
         }
 
-        .lang-btn.active {
-            background-color: #0284c7;
-            color: white;
-            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
-        }
-
-        .lang-btn.inactive {
-            background-color: #e2e8f0;
-            color: #475569;
-        }
-
-        .lang-btn.inactive:hover {
-            background-color: #cbd5e1;
-            color: #0f172a;
+        /* Ajuste del botón para que no se salga en móviles */
+        @media (max-width: 480px) {
+            .btn-lang-cycle {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    
-
     <div id="principal">
-        <div class="lang-switcher">
-            <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
+        <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
             <?php echo $bandera_mostrar; ?> ↻
         </a>
-        </div>
+
         <h2><?php echo isset($lang['menu_acciones']) ? $lang['menu_acciones'] : 'Aktionen'; ?></h2>
 
         <nav class="menu-container">
