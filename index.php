@@ -23,8 +23,8 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
 
 // --- CONFIGURACIÓN WERKSTATT ---
 $mac_pc = 'D8-43-AE-4F-75-6C';
-$ip_pc = '192.168.1.133';
-$broadcast_ip = '192.168.1.255';
+$ip_pc = '100.80.192.32'; // Tu IP de Tailscale para el Ping y Guacamole
+$dominio_duckdns = 'adomiingoagenda.duckdns.org'; 
 
 // 2. Lógica para encender WERKSTATT
 $wol_enviado = false;
@@ -33,7 +33,11 @@ if (isset($_POST['wake_werkstatt'])) {
     $mac_bin = pack('H12', $mac_hex);
     $magic_packet = str_repeat(chr(0xff), 6) . str_repeat($mac_bin, 16);
 
-    $fp = @fsockopen('udp://' . $broadcast_ip, 9, $errno, $errstr, 2);
+    // Resolvemos la IP pública de tu casa a través de DuckDNS
+    $ip_publica_casa = gethostbyname($dominio_duckdns);
+
+    // Enviamos el paquete al puerto 9 UDP de tu IP pública (el que abrimos en el ZTE)
+    $fp = @fsockopen('udp://' . $ip_publica_casa, 9, $errno, $errstr, 2);
     if ($fp) {
         fwrite($fp, $magic_packet);
         fclose($fp);
