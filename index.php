@@ -24,7 +24,7 @@ $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] 
 // --- CONFIGURACIÓN WERKSTATT ---
 $mac_pc = 'D8-43-AE-4F-75-6C';
 $ip_pc = '100.80.192.32'; // Tu IP de Tailscale para el Ping y Guacamole
-$dominio_duckdns = 'adomiingoagenda.duckdns.org'; 
+$dominio_duckdns = 'adomiingoagenda.duckdns.org';
 
 // 2. Lógica para encender WERKSTATT
 $wol_enviado = false;
@@ -58,12 +58,12 @@ $pc_encendido = ($resultado_ping === 0);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($lang['titulo_index']) ? $lang['titulo_index'] : 'Main Brain'; ?></title>
     <link rel="stylesheet" href="./css/menu.css">
-    
+
     <style>
         /* =========================================
            ESTILOS ESPECIALES PARA WERKSTATT
            ========================================= */
-        
+
         /* El círculo indicador (arriba a la izquierda) */
         .status-circle {
             position: absolute;
@@ -77,18 +77,21 @@ $pc_encendido = ($resultado_ping === 0);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s ease;
         }
-        
+
         .status-circle:hover {
             transform: scale(1.1);
         }
 
         .status-circle.offline {
-            background-color: #dc2626; /* Rojo estático */
+            background-color: #dc2626;
+            /* Rojo estático */
         }
 
         .status-circle.online {
-            background-color: #22c55e; /* Verde */
-            animation: pulse-lila 1.5s infinite; /* Intermitencia */
+            background-color: #22c55e;
+            /* Verde */
+            animation: pulse-lila 1.5s infinite;
+            /* Intermitencia */
         }
 
         /* Animación del parpadeo verde */
@@ -96,13 +99,17 @@ $pc_encendido = ($resultado_ping === 0);
             0% {
                 /* Opacidad al 100% y sombra lila inicial */
                 opacity: 1;
-                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); /* Sombra lila suave */
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7);
+                /* Sombra lila suave */
             }
+
             70% {
                 /* Sombra lila se expande y el círculo empieza a atenuarse */
                 opacity: 0.6;
-                box-shadow: 0 0 0 15px rgba(168, 85, 247, 0); /* Sombra transparente al expandirse */
+                box-shadow: 0 0 0 15px rgba(168, 85, 247, 0);
+                /* Sombra transparente al expandirse */
             }
+
             100% {
                 /* Fin de la animación, listo para reiniciar */
                 opacity: 1;
@@ -127,13 +134,17 @@ $pc_encendido = ($resultado_ping === 0);
         }
 
         .btn-werkstatt.offline {
-            background-color: #dc2626; /* Fondo rojo */
-            color: #ffffff; /* Letras blancas */
+            background-color: #dc2626;
+            /* Fondo rojo */
+            color: #ffffff;
+            /* Letras blancas */
         }
 
         .btn-werkstatt.online {
-            background-color: #22c55e; /* Fondo verde */
-            color: #000000; /* Letras negras */
+            background-color: #22c55e;
+            /* Fondo verde */
+            color: #000000;
+            /* Letras negras */
             box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
         }
 
@@ -143,18 +154,19 @@ $pc_encendido = ($resultado_ping === 0);
         }
 
         @media (max-width: 480px) {
-            .status-circle { top: 12px; left: 12px; }
+            .status-circle {
+                top: 12px;
+                left: 12px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <a href="<?php echo $pc_encendido ? 'escritorio.php' : '#'; ?>" 
-       id="status-circle" 
-       class="status-circle <?php echo $pc_encendido ? 'online' : 'offline'; ?>"
-       title="<?php echo $pc_encendido ? 'Conectar al Escritorio' : 'PC Apagado'; ?>"
-       <?php echo !$pc_encendido ? 'onclick="alert(\'WERKSTATT está apagado. Enciéndelo desde el menú primero.\'); return false;"' : ''; ?>>
+    <a href="<?php echo $pc_encendido ? 'escritorio.php' : '#'; ?>" id="status-circle"
+        class="status-circle <?php echo $pc_encendido ? 'online' : 'offline'; ?>"
+        title="<?php echo $pc_encendido ? 'Conectar al Escritorio' : 'PC Apagado'; ?>" <?php echo !$pc_encendido ? 'onclick="alert(\'WERKSTATT está apagado. Enciéndelo desde el menú primero.\'); return false;"' : ''; ?>>
     </a>
 
     <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
@@ -166,9 +178,10 @@ $pc_encendido = ($resultado_ping === 0);
         <h2><?php echo isset($lang['menu_principal']) ? $lang['menu_principal'] : 'Menú Principal'; ?></h2>
 
         <nav class="menu-container">
-            
+
             <form method="post" style="margin: 0;" onsubmit="return confirm('¿Confirmar acción sobre WERKSTATT?');">
-                <button type="submit" name="wake_werkstatt" class="btn-werkstatt <?php echo $pc_encendido ? 'online' : 'offline'; ?>">
+                <button type="submit" name="wake_werkstatt" id="btn-werkstatt"
+                    class="btn-werkstatt <?php echo $pc_encendido ? 'online' : 'offline'; ?>">
                     WERKSTATT
                 </button>
             </form>
@@ -176,15 +189,15 @@ $pc_encendido = ($resultado_ping === 0);
             <a href="./paginas/agenda/agendaMenu.php" class="btn-link">
                 <?php echo isset($lang['btn_agenda']) ? $lang['btn_agenda'] : 'Agenda'; ?>
             </a>
-            
+
             <a href="./paginas/Personal/index.php" class="btn-link">
                 <?php echo isset($lang['btn_personal']) ? $lang['btn_personal'] : 'Personal'; ?>
             </a>
-            
+
             <a href="academico.php" class="btn-link">
                 <?php echo isset($lang['btn_academico']) ? $lang['btn_academico'] : 'Académico'; ?>
             </a>
-            
+
             <a href="./paginas/estadoServer.php" class="btn-link">
                 <?php echo isset($lang['btn_estado_server']) ? $lang['btn_estado_server'] : 'Estado del servidor'; ?>
             </a>
@@ -192,13 +205,36 @@ $pc_encendido = ($resultado_ping === 0);
     </div>
 
     <?php if ($wol_enviado && !$pc_encendido): ?>
-    <script>
-        setTimeout(function() {
-            window.location.href = window.location.pathname;
-        }, 15000);
-    </script>
+        <script>
+            setTimeout(function () {
+                window.location.href = window.location.pathname;
+            }, 15000);
+        </script>
     <?php endif; ?>
+    <script>
+        document.getElementById('btn-werkstatt').addEventListener('click', function (e) {
+            e.preventDefault();
 
+            // 1. Preguntamos al servidor si el PC está ON u OFF
+            fetch('control.php?accion=estado')
+                .then(response => response.text())
+                .then(estado => {
+                    if (estado === 'ON') {
+                        // 2. Si está encendido, lanzamos la pregunta de seguridad
+                        if (confirm("El equipo WERKSTATT ya está encendido. ¿Deseas apagarlo?")) {
+                            fetch('control.php?accion=apagar')
+                                .then(res => res.text())
+                                .then(resultado => alert("Orden de apagado enviada."));
+                        }
+                    } else {
+                        // 3. Si está apagado, lanzamos el Wake On LAN
+                        fetch('control.php?accion=encender')
+                            .then(res => res.text())
+                            .then(resultado => alert("Enviando Paquete Mágico para despertar a WERKSTATT..."));
+                    }
+                });
+        });
+    </script>
 </body>
 
 </html>
