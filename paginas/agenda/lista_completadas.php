@@ -1,10 +1,16 @@
 <?php
-require_once '../../idiomas.php'; // Motor de idiomas
+// Motor de idiomas (Ruta actualizada)
+require_once '../../code/controladores/idiomas.php';
+$idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
+
 $db_path = "/var/www/ubungen/kalender.db";
+
 try {
     $db = new PDO("sqlite:$db_path");
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) { die($lang['msg_error_db'] . $e->getMessage()); }
+} catch (PDOException $e) { 
+    die($lang['msg_error_db'] . $e->getMessage()); 
+}
 
 if (isset($_GET['restaurar'])) {
     $id = $_GET['restaurar'];
@@ -17,24 +23,26 @@ if (isset($_GET['restaurar'])) {
         $stmt_del = $db->prepare("DELETE FROM completadas WHERE id = ?");
         $stmt_del->execute([$id]);
     }
-    header("Location: lista_completadas.php"); exit;
+    header("Location: lista_completadas.php"); 
+    exit;
 }
 
 if (isset($_GET['borrar'])) {
     $stmt = $db->prepare("DELETE FROM completadas WHERE id = ?");
     $stmt->execute([$_GET['borrar']]);
-    header("Location: lista_completadas.php"); exit;
+    header("Location: lista_completadas.php"); 
+    exit;
 }
+
 $stmt = $db->query("SELECT * FROM completadas ORDER BY fecha_completada DESC");
 $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de'; ?>">
+<html lang="<?php echo $idioma_actual; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title><?php echo $lang['historial_titulo']; ?></title>
+    <title><?php echo isset($lang['historial_titulo']) ? $lang['historial_titulo'] : 'Completadas'; ?></title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; color: #334155; padding: 20px; margin: 0; box-sizing: border-box; }
         .container { max-width: 800px; margin: auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-top: 5px solid #10b981; box-sizing: border-box; }
@@ -63,7 +71,6 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn-link:hover { background: #cbd5e1; color: #0f172a; }
         .badge-date { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
         
-        /* 📱 MODO MÓVIL OPTIMIZADO */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .container { padding: 15px; }
@@ -74,12 +81,8 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             td { padding: 5px 0; border: none; }
             td:first-child { border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; margin-bottom: 10px; }
             td:nth-child(2), td:nth-child(3) { display: inline-block; margin-right: 15px; width: auto; }
-            
-            /* Ajuste para que los botones en móvil se vean perfectos */
             td:last-child { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
             .btn-action { flex: 1; text-align: center; margin: 0; padding: 10px 5px; min-width: 45%; }
-            
-            /* Ajuste de enlaces inferiores */
             .footer-links { flex-direction: column; gap: 10px; }
             .btn-link { width: 100%; box-sizing: border-box; }
         }
@@ -87,15 +90,20 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
     <div class="container">
-        <h1><?php echo $lang['h1_completadas']; ?></h1>
-        <p class="info-text"><?php echo $lang['info_completadas']; ?></p>
+        <h1><?php echo isset($lang['h1_completadas']) ? $lang['h1_completadas'] : 'Tareas Completadas'; ?></h1>
+        <p class="info-text"><?php echo isset($lang['info_completadas']) ? $lang['info_completadas'] : 'Historial de tareas finalizadas.'; ?></p>
 
-        <input type="text" id="buscadorJS" placeholder="<?php echo $lang['buscar_historial']; ?>">
+        <input type="text" id="buscadorJS" placeholder="<?php echo isset($lang['buscar_historial']) ? $lang['buscar_historial'] : 'Buscar...'; ?>">
 
         <?php if (count($tareas) > 0): ?>
             <table>
                 <thead>
-                    <tr><th><?php echo $lang['tarea']; ?></th><th><?php echo $lang['asignatura']; ?></th><th><?php echo $lang['completada_el']; ?></th><th><?php echo $lang['acciones']; ?></th></tr>
+                    <tr>
+                        <th><?php echo isset($lang['tarea']) ? $lang['tarea'] : 'Tarea'; ?></th>
+                        <th><?php echo isset($lang['asignatura']) ? $lang['asignatura'] : 'Asignatura'; ?></th>
+                        <th><?php echo isset($lang['completada_el']) ? $lang['completada_el'] : 'Completada el'; ?></th>
+                        <th><?php echo isset($lang['acciones']) ? $lang['acciones'] : 'Acciones'; ?></th>
+                    </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($tareas as $t): ?>
@@ -104,29 +112,29 @@ $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <strong><?php echo htmlspecialchars($t['betreff']); ?></strong>
                                 <div class="task-details">
                                     <?php if (!empty($t['beschreibung'])): ?>
-                                        <p><strong><?php echo $lang['descripcion']; ?>:</strong><br><?php echo nl2br(htmlspecialchars($t['beschreibung'])); ?></p>
+                                        <p><strong><?php echo isset($lang['descripcion']) ? $lang['descripcion'] : 'Descripción'; ?>:</strong><br><?php echo nl2br(htmlspecialchars($t['beschreibung'])); ?></p>
                                     <?php else: ?>
-                                        <p><em><?php echo $lang['sin_descripcion']; ?></em></p>
+                                        <p><em><?php echo isset($lang['sin_descripcion']) ? $lang['sin_descripcion'] : 'Sin descripción'; ?></em></p>
                                     <?php endif; ?>
                                 </div>
                             </td>
                             <td><span><?php echo htmlspecialchars($t['fach']); ?></span></td>
                             <td><span class="badge-date"><?php echo date("d-m-Y", strtotime($t['fecha_completada'])); ?></span></td>
                             <td>
-                                <a href="lista_completadas.php?restaurar=<?php echo $t['id']; ?>" class="btn-action btn-restaurar" onclick="event.stopPropagation();" title="<?php echo $lang['title_restaurar']; ?>"><?php echo $lang['btn_restaurar']; ?></a>
-                                <a href="lista_completadas.php?borrar=<?php echo $t['id']; ?>" class="btn-action btn-borrar" onclick="event.stopPropagation();" title="<?php echo $lang['title_borrar']; ?>"><?php echo $lang['btn_borrar']; ?></a>
+                                <a href="lista_completadas.php?restaurar=<?php echo $t['id']; ?>" class="btn-action btn-restaurar" onclick="event.stopPropagation();" title="<?php echo isset($lang['title_restaurar']) ? $lang['title_restaurar'] : 'Restaurar'; ?>"><?php echo isset($lang['btn_restaurar']) ? $lang['btn_restaurar'] : 'Restaurar'; ?></a>
+                                <a href="lista_completadas.php?borrar=<?php echo $t['id']; ?>" class="btn-action btn-borrar" onclick="event.stopPropagation();" title="<?php echo isset($lang['title_borrar']) ? $lang['title_borrar'] : 'Borrar'; ?>"><?php echo isset($lang['btn_borrar']) ? $lang['btn_borrar'] : 'Borrar'; ?></a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         <?php else: ?>
-            <div class="empty-msg"><p><?php echo $lang['msg_no_completadas']; ?></p></div>
+            <div class="empty-msg"><p><?php echo isset($lang['msg_no_completadas']) ? $lang['msg_no_completadas'] : 'No hay tareas completadas.'; ?></p></div>
         <?php endif; ?>
 
         <div class="footer-links">
-            <a href="./agendaMenu.php" class="btn-link"><?php echo $lang['btn_volver_agenda']; ?></a>
-            <a href="../estadoServer.php" class="btn-link"><?php echo $lang['btn_ver_panel']; ?></a>
+            <a href="./agendaMenu.php" class="btn-link" style="background: linear-gradient(135deg, #6c757d, #495057); color: white;">⬅ <?php echo isset($lang['btn_volver_agenda']) ? $lang['btn_volver_agenda'] : 'Atrás'; ?></a>
+            <a href="../../index.php" class="btn-link">🏠 <?php echo isset($lang['inicio']) ? $lang['inicio'] : 'Inicio'; ?></a>
         </div>
     </div>
     <script src="./agenda.js"></script>

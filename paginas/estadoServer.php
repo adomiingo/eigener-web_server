@@ -1,67 +1,99 @@
 <?php
-require_once '../idiomas.php'; // Solo sube un nivel porque está en /paginas/
+// 1. Cargamos el motor de idiomas (Ruta actualizada)
+require_once '../code/controladores/idiomas.php';
 
+$idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
+
+// Rotación estricta de idiomas
+$rotacion = [
+    'cat' => 'de',
+    'de' => 'en',
+    'en' => 'es',
+    'es' => 'cat'
+];
+$siguiente_idioma = isset($rotacion[$idioma_actual]) ? $rotacion[$idioma_actual] : 'de';
+
+$banderas = [
+    'cat' => 'CAT',
+    'de' => '🇩🇪 DE',
+    'en' => '🇬🇧 EN',
+    'es' => '🇪🇸 ES'
+];
+$bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] : '🇩🇪 DE';
+
+// 2. Fetch de Logs (AJAX)
 if (isset($_GET['get_log'])) {
     $log = shell_exec("tail -n 15 /var/log/nginx/access.log 2>&1");
-    echo empty($log) ? $lang['msg_esperando_logs'] : htmlspecialchars($log);
+    echo empty($log) ? (isset($lang['msg_esperando_logs']) ? $lang['msg_esperando_logs'] : 'Esperando logs...') : htmlspecialchars($log);
     exit;
 }
 
+// 3. Ejecución de Alertas Python (Ruta actualizada)
 $mensaje_accion = "";
 if (isset($_POST['ejecutar_alertas'])) {
-    $comando = escapeshellcmd("python3 ../code/alertas.py");
+    $comando = escapeshellcmd("python3 ../code/scripts_sistema/alertas.py");
     $salida = shell_exec($comando . " 2>&1"); 
-    $mensaje_accion = "<div class='alert success'>{$lang['msg_comando_ejecutado']}<br>" . nl2br(htmlspecialchars($salida)) . "</div>";
+    $mensaje_accion = "<div class='alert success'>" . (isset($lang['msg_comando_ejecutado']) ? $lang['msg_comando_ejecutado'] : 'Ejecutado') . "<br>" . nl2br(htmlspecialchars($salida)) . "</div>";
 }
 
+// 4. Métricas del Servidor
 $uptime = shell_exec("uptime -p");
 $ram_usage = shell_exec("free -m | awk 'NR==2{printf \"%.1f%% (Usado: %s MB)\", $3*100/$2, $3 }'");
 
 $db_path = "/var/www/ubungen/kalender.db";
-$db_size = file_exists($db_path) ? round(filesize($db_path) / 1024, 2) . " KB" : $lang['msg_no_encontrada'];
+$db_size = file_exists($db_path) ? round(filesize($db_path) / 1024, 2) . " KB" : (isset($lang['msg_no_encontrada']) ? $lang['msg_no_encontrada'] : 'No encontrada');
 
 try {
     $db = new PDO("sqlite:$db_path");
     $total_tareas = $db->query("SELECT COUNT(*) FROM aufgaben")->fetchColumn();
     $total_pendientes = $db->query("SELECT COUNT(*) FROM aufgaben WHERE zustand = 'Ausstehen'")->fetchColumn();
-} catch (Exception $e) { $total_tareas = $lang['msg_error']; $total_pendientes = $lang['msg_error']; }
+} catch (Exception $e) { 
+    $total_tareas = isset($lang['msg_error']) ? $lang['msg_error'] : 'Error'; 
+    $total_pendientes = isset($lang['msg_error']) ? $lang['msg_error'] : 'Error'; 
+}
+
+// 5. Comprobación de estado del WERKSTATT para sincronizar el color del botón
+$ip_casa = 'motxitorouter.duckdns.org'; 
+$puerto_rdp = 54321;
+$pc_encendido = false;
+$conexion = @fsockopen($ip_casa, $puerto_rdp, $errno, $errstr, 1);
+if ($conexion) {
+    $pc_encendido = true;
+    fclose($conexion);
+}
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de'; ?>">
+<html lang="<?php echo $idioma_actual; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $lang['estado_titulo']; ?></title>
+    <title><?php echo isset($lang['estado_titulo']) ? $lang['estado_titulo'] : 'Estado del Servidor'; ?></title>
+    
+    <link rel="stylesheet" href="../css/menu.css">
     
     <style> 
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: #f0f4f8; 
-            padding: 20px; 
-            margin: 0; 
-            box-sizing: border-box;
-        } 
-        
-        .container { 
-            max-width: 1000px; /* Ampliado ligeramente para que las 4 tarjetas respiren mejor en PC */
-            margin: auto; 
-            background: #ffffff; 
-            padding: 40px; 
-            border-radius: 12px; 
-            position: relative; /* Clave para el botón rotativo */
-            box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        } 
-        
-        h1, h3 { 
-            color: #0284c7; 
-            text-align: center; 
-        } 
-        
-        /* SOLUCIÓN AL PROBLEMA DE LOS HUECOS */
+        /* =========================================
+           ESTILOS ESPECIALES PARA WERKSTATT (Heredados del index)
+           ========================================= */
+        .status-circle { position: absolute; top: 20px; left: 20px; width: 24px; height: 24px; border-radius: 50%; z-index: 1000; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease; }
+        .status-circle:hover { transform: scale(1.1); }
+        .status-circle.offline { background-color: #dc2626; }
+        .status-circle.online { background-color: #22c55e; animation: pulse-lila 1.5s infinite; }
+        @keyframes pulse-lila {
+            0% { opacity: 1; box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); }
+            70% { opacity: 0.6; box-shadow: 0 0 0 15px rgba(168, 85, 247, 0); }
+            100% { opacity: 1; box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+        }
+        .btn-werkstatt { display: block; width: 100%; text-align: center; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 800; letter-spacing: 2px; cursor: pointer; transition: 0.3s ease; border: none; font-family: inherit; margin-bottom: 10px; }
+        .btn-werkstatt.offline { background-color: #dc2626; color: #ffffff; }
+        .btn-werkstatt.online { background-color: #22c55e; color: #000000; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
+        .btn-werkstatt:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        /* =========================================
+           ESTILOS ESPECÍFICOS DEL DASHBOARD DE ESTADO
+           ========================================= */
         .grid { 
             display: grid; 
-            /* Forzamos 4 columnas de igual tamaño (1 fraction cada una) */
             grid-template-columns: repeat(4, 1fr); 
             gap: 20px; 
             margin: 30px 0; 
@@ -74,9 +106,9 @@ try {
             border-top: 4px solid #0284c7; 
             text-align: center; 
             background: #f8fafc;
-            /* Aseguramos que el contenido interno se adapte si es muy largo */
             word-wrap: break-word; 
         } 
+        .card h3 { color: #0284c7; margin-top: 0; font-size: 1.1rem; }
         .card p { font-size: 1.1rem; font-weight: bold; margin-top: 10px; color: #334155; }
         
         .log-wrapper { 
@@ -86,6 +118,7 @@ try {
             border-radius: 8px;
             border: 1px solid #e2e8f0;
         } 
+        .log-wrapper h3 { color: #0284c7; text-align: center; margin-top: 0; }
         
         .log-terminal { 
             background: #0f172a; 
@@ -106,130 +139,100 @@ try {
             border-radius: 8px;
             border: 1px solid #bae6fd;
         } 
+        .action-section h3 { color: #0284c7; margin-top: 0; }
         
         .btn-run { 
             background-color: #0284c7; 
             color: white; 
             padding: 12px 25px; 
             cursor: pointer; 
-            border:none; 
+            border: none; 
             border-radius: 6px; 
             font-weight: bold;
             transition: background 0.2s;
         } 
         .btn-run:hover { background-color: #0369a1; }
         
-        .btn-link { 
-            background: #e2e8f0; 
-            color: #475569; 
-            padding: 12px 25px; 
-            text-decoration: none; 
-            border-radius: 6px; 
-            display: inline-block;
-            font-weight: 500;
-        } 
-        
         .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
         .alert.success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
 
-        /* Botón de idioma rotativo */
-        .btn-lang-cycle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            color: #475569;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            text-decoration: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
-            z-index: 1000;
-        }
-        .btn-lang-cycle:hover {
-            background-color: #f8fafc;
-            transform: translateY(-2px);
-            border-color: #cbd5e1;
-            color: #0f172a;
-        }
-
-        /* 📱 RESPONSIVE PARA TABLETS (Si la pantalla baja de 900px, pasamos a 2 columnas) */
         @media (max-width: 900px) {
-            .grid { 
-                grid-template-columns: repeat(2, 1fr); 
-            }
+            .grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        /* 📱 RESPONSIVE PARA MÓVILES (Si la pantalla baja de 600px, pasamos a 1 columna) */
         @media (max-width: 600px) {
-            body { padding: 10px; }
-            .container { padding: 20px; }
-            
-            /* Ajuste de botón idioma */
-            .btn-lang-cycle {
-                top: 10px;
-                right: 10px;
-                padding: 6px 12px;
-                font-size: 0.85rem;
-            }
-            
-            h1 { margin-top: 20px; font-size: 1.6rem; }
-            
-            /* Hacemos que la grid sea 1 sola columna en vertical */
-            .grid { 
-                grid-template-columns: 1fr; 
-                gap: 15px; 
-            }
-            
+            .grid { grid-template-columns: 1fr; gap: 15px; }
             .card { padding: 15px; }
-            
             .log-wrapper, .action-section { padding: 15px; }
             .log-terminal { font-size: 0.75rem; height: 250px; } 
-            
-            .btn-run, .btn-link { width: 100%; box-sizing: border-box; display: block; }
+            .btn-run { width: 100%; box-sizing: border-box; display: block; }
+            .status-circle { top: 12px; left: 12px; }
         }
     </style>
 </head>
 <body>
     
-    <?php 
-        $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
-        $rotacion = ['cat' => 'de', 'de'  => 'en', 'en'  => 'es', 'es'  => 'cat'];
-        $siguiente_idioma = isset($rotacion[$idioma_actual]) ? $rotacion[$idioma_actual] : 'de';
-        $banderas = ['cat' => 'CAT', 'de'  => '🇩🇪 DE', 'en'  => '🇬🇧 EN', 'es'  => '🇪🇸 ES'];
-        $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] : '🇩🇪 DE';
-    ?>
+    <a href="<?php echo $pc_encendido ? '../escritorio.php' : '#'; ?>" id="status-circle"
+        class="status-circle <?php echo $pc_encendido ? 'online' : 'offline'; ?>"
+        title="<?php echo $pc_encendido ? 'Conectar al Escritorio' : 'PC Apagado'; ?>" <?php echo !$pc_encendido ? 'onclick="alert(\'WERKSTATT está apagado.\'); return false;"' : ''; ?>>
+    </a>
+
     <a href="?lang=<?php echo $siguiente_idioma; ?>" class="btn-lang-cycle" title="Cambiar idioma">
         <?php echo $bandera_mostrar; ?> ↻
     </a>
 
-    <div class="container">
-        <h1><?php echo $lang['estado_titulo']; ?></h1>
+    <div id="principal">
+        
+        <h2><?php echo isset($lang['estado_titulo']) ? $lang['estado_titulo'] : 'Estado del Servidor'; ?></h2>
+        
+        <nav class="menu-container">
+            <button type="button" id="btn-werkstatt" class="btn-werkstatt <?php echo $pc_encendido ? 'online' : 'offline'; ?>">
+                WERKSTATT
+            </button>
+            <a href="./agenda/agendaMenu.php" class="btn-link">
+                <?php echo isset($lang['btn_agenda']) ? $lang['btn_agenda'] : 'Agenda'; ?>
+            </a>
+            <a href="./Personal/index.php" class="btn-link">
+                <?php echo isset($lang['btn_personal']) ? $lang['btn_personal'] : 'Personal'; ?>
+            </a>
+            <a href="../academico.php" class="btn-link">
+                <?php echo isset($lang['btn_academico']) ? $lang['btn_academico'] : 'Académico'; ?>
+            </a>
+            <a href="#" class="btn-link" style="background-color: #e2e8f0; font-weight: bold; pointer-events: none;">
+                ▶ <?php echo isset($lang['btn_estado_server']) ? $lang['btn_estado_server'] : 'Estado del servidor'; ?>
+            </a>
+        </nav>
+        
+        <hr style="border: 1px solid #e2e8f0; margin: 30px 0;">
+
         <?php echo $mensaje_accion; ?>
 
         <div class="grid">
-            <div class="card"><h3><?php echo $lang['card_uptime']; ?></h3><p><?php echo htmlspecialchars($uptime); ?></p></div>
-            <div class="card"><h3><?php echo $lang['card_ram']; ?></h3><p><?php echo htmlspecialchars($ram_usage); ?></p></div>
-            <div class="card"><h3><?php echo $lang['card_db']; ?></h3><p><?php echo $db_size; ?></p></div>
-            <div class="card"><h3><?php echo $lang['card_tareas']; ?></h3><p><?php echo $total_pendientes; ?> <?php echo $lang['text_pendientes']; ?><br><span style="font-size: 0.9rem; color: #64748b;"><?php echo $lang['text_de']; ?> <?php echo $total_tareas; ?> <?php echo $lang['text_totales']; ?></span></p></div>
+            <div class="card"><h3><?php echo isset($lang['card_uptime']) ? $lang['card_uptime'] : 'Uptime'; ?></h3><p><?php echo htmlspecialchars($uptime); ?></p></div>
+            <div class="card"><h3><?php echo isset($lang['card_ram']) ? $lang['card_ram'] : 'RAM'; ?></h3><p><?php echo htmlspecialchars($ram_usage); ?></p></div>
+            <div class="card"><h3><?php echo isset($lang['card_db']) ? $lang['card_db'] : 'Database'; ?></h3><p><?php echo $db_size; ?></p></div>
+            <div class="card">
+                <h3><?php echo isset($lang['card_tareas']) ? $lang['card_tareas'] : 'Tareas'; ?></h3>
+                <p><?php echo $total_pendientes; ?> <?php echo isset($lang['text_pendientes']) ? $lang['text_pendientes'] : 'Pendientes'; ?><br>
+                <span style="font-size: 0.9rem; color: #64748b;"><?php echo isset($lang['text_de']) ? $lang['text_de'] : 'de'; ?> <?php echo $total_tareas; ?> <?php echo isset($lang['text_totales']) ? $lang['text_totales'] : 'Totales'; ?></span></p>
+            </div>
         </div>
 
         <div class="log-wrapper">
-            <h3><?php echo $lang['title_live_log']; ?></h3>
-            <div id="live-log" class="log-terminal"><?php echo $lang['msg_cargando_logs']; ?></div>
+            <h3><?php echo isset($lang['title_live_log']) ? $lang['title_live_log'] : 'Live Access Logs'; ?></h3>
+            <div id="live-log" class="log-terminal"><?php echo isset($lang['msg_cargando_logs']) ? $lang['msg_cargando_logs'] : 'Cargando...'; ?></div>
         </div>
 
         <div class="action-section">
-            <h3><?php echo $lang['title_disparador']; ?></h3>
-            <p><?php echo $lang['desc_disparador']; ?></p>
-            <form method="post"><button type="submit" name="ejecutar_alertas" class="btn-run"><?php echo $lang['btn_ejecutar_python']; ?></button></form>
+            <h3><?php echo isset($lang['title_disparador']) ? $lang['title_disparador'] : 'Disparador de Python'; ?></h3>
+            <p><?php echo isset($lang['desc_disparador']) ? $lang['desc_disparador'] : 'Ejecutar alertas manualmente:'; ?></p>
+            <form method="post">
+                <button type="submit" name="ejecutar_alertas" class="btn-run"><?php echo isset($lang['btn_ejecutar_python']) ? $lang['btn_ejecutar_python'] : 'Ejecutar alertas.py'; ?></button>
+            </form>
         </div>
 
-        <div class="footer-links" style="text-align:center; margin-top:30px;">
-            <a href="../index.php" class="btn-link"><?php echo $lang['btn_pagina_principal']; ?></a> 
+        <div style="text-align:center; margin-top:30px;">
+            <a href="../index.php" class="btn-link" style="background-color: #94a3b8; color: white;">🏠 Volver al Inicio</a> 
         </div>
     </div>
     
@@ -243,6 +246,36 @@ try {
             });
         }
         setInterval(fetchLog, 2000); fetchLog();
+    </script>
+    
+    <script>
+        document.getElementById('btn-werkstatt').addEventListener('click', function (e) {
+            e.preventDefault();
+            // Ruta ajustada para salir de /paginas/ y entrar en /code/controladores/
+            fetch('../code/controladores/control.php?accion=estado')
+                .then(response => response.text())
+                .then(estado => {
+                    if (estado === 'ON') {
+                        if (confirm("El equipo WERKSTATT ya está encendido. ¿Deseas apagarlo?")) {
+                            fetch('../code/controladores/control.php?accion=apagar')
+                                .then(res => res.text())
+                                .then(resultado => {
+                                    alert("Orden de apagado enviada.");
+                                    setTimeout(() => location.reload(), 3000);
+                                });
+                        }
+                    } else {
+                        if (confirm("El equipo WERKSTATT está apagado. ¿Deseas encenderlo?")) {
+                            fetch('../code/controladores/control.php?accion=encender')
+                                .then(res => res.text())
+                                .then(resultado => {
+                                    alert("Enviando Paquete Mágico para despertar a WERKSTATT...");
+                                    setTimeout(() => location.reload(), 15000);
+                                });
+                        }
+                    }
+                });
+        });
     </script>
 </body>
 </html>
