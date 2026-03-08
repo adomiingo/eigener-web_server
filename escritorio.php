@@ -16,7 +16,7 @@ if ($conexion) {
 
 // 2. CONFIGURACIÓN DE GUACAMOLE
 // Suponiendo que tu Docker de Guacamole sale por el puerto 8080 del propio servidor:
-$url_guacamole = "/guacamole/";
+$url_guacamole = "http://100.80.192.32:8080/guacamole/";;
 
 // (Si en el futuro usas Nginx para ocultar el puerto 8080, la ruta sería simplemente "/guacamole/")
 ?>
