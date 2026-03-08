@@ -1,6 +1,6 @@
 <?php
-// 1. Cargamos el motor de idiomas
-require_once 'idiomas.php';
+// 1. Cargamos el motor de idiomas (Ruta actualizada a la nueva carpeta)
+require_once __DIR__ . '/code/controladores/idiomas.php';
 
 $idioma_actual = isset($_SESSION['idioma_seleccionado']) ? $_SESSION['idioma_seleccionado'] : 'de';
 
@@ -22,33 +22,16 @@ $banderas = [
 $bandera_mostrar = isset($banderas[$idioma_actual]) ? $banderas[$idioma_actual] : '🇩🇪 DE';
 
 // --- CONFIGURACIÓN WERKSTATT ---
-$mac_pc = 'D8-43-AE-4F-75-6C';
-$ip_pc = '100.80.192.32'; // Tu IP de Tailscale para el Ping y Guacamole
-$dominio_duckdns = 'adomiingoagenda.duckdns.org';
+$ip_casa = 'motxitorouter.duckdns.org'; // Unificamos para usar siempre tu DDNS
+$puerto_rdp = 54321; // El puerto de tu router para RDP
 
-// 2. Lógica para encender WERKSTATT
-$wol_enviado = false;
-if (isset($_POST['wake_werkstatt'])) {
-    $mac_hex = str_replace(array(':', '-'), '', $mac_pc);
-    $mac_bin = pack('H12', $mac_hex);
-    $magic_packet = str_repeat(chr(0xff), 6) . str_repeat($mac_bin, 16);
-
-    // Resolvemos la IP pública de tu casa a través de DuckDNS
-    $ip_publica_casa = gethostbyname($dominio_duckdns);
-
-    // Enviamos el paquete al puerto 9 UDP de tu IP pública (el que abrimos en el ZTE)
-    $fp = @fsockopen('udp://' . $ip_publica_casa, 9, $errno, $errstr, 2);
-    if ($fp) {
-        fwrite($fp, $magic_packet);
-        fclose($fp);
-        $wol_enviado = true;
-    }
+// 2. Comprobación de estado optimizada (Rápido, 1 segundo max, sin depender de Tailscale)
+$pc_encendido = false;
+$conexion = @fsockopen($ip_casa, $puerto_rdp, $errno, $errstr, 1);
+if ($conexion) {
+    $pc_encendido = true;
+    fclose($conexion);
 }
-
-// 3. Comprobación de estado (El Chivato)
-// Hacemos 1 ping rápido. Si devuelve 0, está encendido.
-exec("ping -c 1 -W 1 " . escapeshellarg($ip_pc) . " > /dev/null 2>&1", $output, $resultado_ping);
-$pc_encendido = ($resultado_ping === 0);
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $idioma_actual; ?>">
@@ -63,102 +46,20 @@ $pc_encendido = ($resultado_ping === 0);
         /* =========================================
            ESTILOS ESPECIALES PARA WERKSTATT
            ========================================= */
-
-        /* El círculo indicador (arriba a la izquierda) */
-        .status-circle {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            z-index: 1000;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s ease;
-        }
-
-        .status-circle:hover {
-            transform: scale(1.1);
-        }
-
-        .status-circle.offline {
-            background-color: #dc2626;
-            /* Rojo estático */
-        }
-
-        .status-circle.online {
-            background-color: #22c55e;
-            /* Verde */
-            animation: pulse-lila 1.5s infinite;
-            /* Intermitencia */
-        }
-
-        /* Animación del parpadeo verde */
+        .status-circle { position: absolute; top: 20px; left: 20px; width: 24px; height: 24px; border-radius: 50%; z-index: 1000; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease; }
+        .status-circle:hover { transform: scale(1.1); }
+        .status-circle.offline { background-color: #dc2626; }
+        .status-circle.online { background-color: #22c55e; animation: pulse-lila 1.5s infinite; }
         @keyframes pulse-lila {
-            0% {
-                /* Opacidad al 100% y sombra lila inicial */
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7);
-                /* Sombra lila suave */
-            }
-
-            70% {
-                /* Sombra lila se expande y el círculo empieza a atenuarse */
-                opacity: 0.6;
-                box-shadow: 0 0 0 15px rgba(168, 85, 247, 0);
-                /* Sombra transparente al expandirse */
-            }
-
-            100% {
-                /* Fin de la animación, listo para reiniciar */
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
-            }
+            0% { opacity: 1; box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); }
+            70% { opacity: 0.6; box-shadow: 0 0 0 15px rgba(168, 85, 247, 0); }
+            100% { opacity: 1; box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
         }
-
-        /* Botón del menú de Werkstatt */
-        .btn-werkstatt {
-            display: block;
-            width: 100%;
-            text-align: center;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: 0.3s ease;
-            border: none;
-            font-family: inherit;
-        }
-
-        .btn-werkstatt.offline {
-            background-color: #dc2626;
-            /* Fondo rojo */
-            color: #ffffff;
-            /* Letras blancas */
-        }
-
-        .btn-werkstatt.online {
-            background-color: #22c55e;
-            /* Fondo verde */
-            color: #000000;
-            /* Letras negras */
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-        }
-
-        .btn-werkstatt:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
-        }
-
-        @media (max-width: 480px) {
-            .status-circle {
-                top: 12px;
-                left: 12px;
-            }
-        }
+        .btn-werkstatt { display: block; width: 100%; text-align: center; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 800; letter-spacing: 2px; cursor: pointer; transition: 0.3s ease; border: none; font-family: inherit; }
+        .btn-werkstatt.offline { background-color: #dc2626; color: #ffffff; }
+        .btn-werkstatt.online { background-color: #22c55e; color: #000000; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
+        .btn-werkstatt:hover { transform: translateY(-2px); opacity: 0.9; }
+        @media (max-width: 480px) { .status-circle { top: 12px; left: 12px; } }
     </style>
 </head>
 
@@ -179,12 +80,9 @@ $pc_encendido = ($resultado_ping === 0);
 
         <nav class="menu-container">
 
-            <form method="post" style="margin: 0;" onsubmit="return confirm('¿Confirmar acción sobre WERKSTATT?');">
-                <button type="submit" name="wake_werkstatt" id="btn-werkstatt"
-                    class="btn-werkstatt <?php echo $pc_encendido ? 'online' : 'offline'; ?>">
-                    WERKSTATT
-                </button>
-            </form>
+            <button type="button" id="btn-werkstatt" class="btn-werkstatt <?php echo $pc_encendido ? 'online' : 'offline'; ?>">
+                WERKSTATT
+            </button>
 
             <a href="./paginas/agenda/agendaMenu.php" class="btn-link">
                 <?php echo isset($lang['btn_agenda']) ? $lang['btn_agenda'] : 'Agenda'; ?>
@@ -204,33 +102,34 @@ $pc_encendido = ($resultado_ping === 0);
         </nav>
     </div>
 
-    <?php if ($wol_enviado && !$pc_encendido): ?>
-        <script>
-            setTimeout(function () {
-                window.location.href = window.location.pathname;
-            }, 15000);
-        </script>
-    <?php endif; ?>
     <script>
         document.getElementById('btn-werkstatt').addEventListener('click', function (e) {
             e.preventDefault();
 
-            // 1. Preguntamos al servidor si el PC está ON u OFF
-            fetch('control.php?accion=estado')
+            // 1. Preguntamos al servidor si el PC está ON u OFF (Ruta ajustada)
+            fetch('code/controladores/control.php?accion=estado')
                 .then(response => response.text())
                 .then(estado => {
                     if (estado === 'ON') {
                         // 2. Si está encendido, lanzamos la pregunta de seguridad
                         if (confirm("El equipo WERKSTATT ya está encendido. ¿Deseas apagarlo?")) {
-                            fetch('control.php?accion=apagar')
+                            fetch('code/controladores/control.php?accion=apagar')
                                 .then(res => res.text())
-                                .then(resultado => alert("Orden de apagado enviada."));
+                                .then(resultado => {
+                                    alert("Orden de apagado enviada.");
+                                    setTimeout(() => location.reload(), 3000); // Recarga para actualizar colores
+                                });
                         }
                     } else {
                         // 3. Si está apagado, lanzamos el Wake On LAN
-                        fetch('control.php?accion=encender')
-                            .then(res => res.text())
-                            .then(resultado => alert("Enviando Paquete Mágico para despertar a WERKSTATT..."));
+                        if (confirm("El equipo WERKSTATT está apagado. ¿Deseas encenderlo?")) {
+                            fetch('code/controladores/control.php?accion=encender')
+                                .then(res => res.text())
+                                .then(resultado => {
+                                    alert("Enviando Paquete Mágico para despertar a WERKSTATT...");
+                                    setTimeout(() => location.reload(), 15000); // Recarga para actualizar colores
+                                });
+                        }
                     }
                 });
         });

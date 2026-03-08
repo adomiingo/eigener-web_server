@@ -37,8 +37,8 @@ elseif ($accion === 'apagar') {
     $token = 'Motxito@2024'; // El mismo que pusiste en Python
     $puerto_apagado = 54322; // El puerto externo del router ZTE
     
-    // Construimos la URL: http://motxitorouter.duckdns.org:54322/apagar?token=WerkstattPower26
-    $url = "http://" . $ip_casa . ":" . $puerto_apagado . "/apagar?token=" . $token;
+    // Construimos la URL securizando el token para HTTP
+    $url = "http://" . $ip_casa . ":" . $puerto_apagado . "/apagar?token=" . urlencode($token);
     
     // Hacemos la llamada con un tiempo máximo de espera de 3 segundos
     $contexto = stream_context_create(['http' => ['timeout' => 3]]);
