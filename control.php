@@ -34,7 +34,7 @@ elseif ($accion === 'encender') {
 }
 elseif ($accion === 'apagar') {
     // Configuramos la llamada al script de Python
-    $token = 'WerkstattPower26'; // El mismo que pusiste en Python
+    $token = 'Motxito@2024'; // El mismo que pusiste en Python
     $puerto_apagado = 54322; // El puerto externo del router ZTE
     
     // Construimos la URL: http://motxitorouter.duckdns.org:54322/apagar?token=WerkstattPower26
