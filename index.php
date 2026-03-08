@@ -65,7 +65,7 @@ if ($conexion) {
 
 <body>
 
-    <a href="<?php echo $pc_encendido ? 'escritorio.php' : '#'; ?>" id="status-circle"
+    <a href="<?php echo $pc_encendido ? 'escritorio.php' : '#'; ?>" id="status-circle" target="blank"
         class="status-circle <?php echo $pc_encendido ? 'online' : 'offline'; ?>"
         title="<?php echo $pc_encendido ? 'Conectar al Escritorio' : 'PC Apagado'; ?>" <?php echo !$pc_encendido ? 'onclick="alert(\'WERKSTATT está apagado. Enciéndelo desde el menú primero.\'); return false;"' : ''; ?>>
     </a>
