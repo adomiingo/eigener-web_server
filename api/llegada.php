@@ -11,7 +11,10 @@ if (!isset($_GET['token']) || $_GET['token'] !== $TOKEN_SECRETO) {
 $db_path = "/var/www/ubungen/kalender.db";
 try {
     $db = new PDO("sqlite:$db_path");
-} catch (PDOException $e) { die("Error DB: " . $e->getMessage()); }
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) { 
+    die("Error DB: " . $e->getMessage()); 
+}
 
 $TELEGRAM_TOKEN = "8794845655:AAG2FGe4LPWaYBxganYF4pTYC0uIyTLqpTg";
 $CHAT_ID = "5181963608";
@@ -29,7 +32,7 @@ function enviar_telegram($mensaje) {
     curl_close($ch);
 }
 
-// 3. LÓGICA DE BÚSQUEDA Y ENVÍO (Igual que tu Python)
+// 3. LÓGICA DE BÚSQUEDA Y ENVÍO
 $hoy = date('Y-m-d');
 $stmt = $db->query("SELECT betreff, fach, daten FROM aufgaben WHERE zustand = 'Ausstehen' ORDER BY daten ASC");
 $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -50,7 +53,7 @@ if (count($tareas) > 0) {
         }
 
         enviar_telegram($mensaje);
-        usleep(300000); // Pausa de 0.3 segundos
+        usleep(300000); // Pausa de 0.3 segundos para no saturar la API de Telegram
     }
     echo "✅ Mensajes enviados a Telegram correctamente.";
 } else {
