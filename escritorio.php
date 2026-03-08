@@ -17,7 +17,7 @@ if ($conexion) {
 // 2. LA MAGIA: Si está encendido, te mandamos directo a Guacamole
 if ($pc_encendido) {
     // 👇 SUSTITUYE ESTA URL POR LA QUE USAS NORMALMENTE PARA ENTRAR A GUACAMOLE 👇
-    $url_guacamole = "http://adomiingoagenda.duckdns.org:54321/guacamole/"; 
+    $url_guacamole = "http://adomiingoagenda.duckdns.org:8080/guacamole/"; 
     
     header("Location: " . $url_guacamole);
     exit;
