@@ -3,7 +3,7 @@ import urllib.parse
 import os
 
 # === CONFIGURACIÓN ===
-PUERTO = 54322
+PUERTO = 8000
 TOKEN_SECRETO = "Motxito@2024" # <-- Asegúrate de que es IDÉNTICO al de control.php
 # =====================
 
