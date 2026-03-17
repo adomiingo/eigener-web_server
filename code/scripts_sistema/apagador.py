@@ -3,8 +3,8 @@ import urllib.parse
 import os
 
 # === CONFIGURACIÓN ===
-PUERTO = 54322
-TOKEN_SECRETO = "Motxito@2024" # <-- Asegúrate de que es IDÉNTICO al de control.php
+PUERTO = 8000  # <-- Alineado con el 'LAN Host Port' de tu router ZTE
+TOKEN_SECRETO = "Motxito@2024" 
 # =====================
 
 class Manejador(BaseHTTPRequestHandler):
@@ -24,12 +24,18 @@ class Manejador(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
+            
             self.wfile.write(b"Orden recibida. Ejecutando prueba...")
             print("¡Contraseña correcta! Escribiendo archivo de prueba...")
             
-            # os.system("shutdown /s /t 5")
+            # --- MODO PRUEBA INOFENSIVA ---
             with open(r"C:\Users\socal\Desktop\PRUEBA_OK.txt", "w") as archivo:
                 archivo.write("El servidor web y Python se comunican perfectamente.")
+            
+            # --- MODO APAGADO REAL (Desactivado) ---
+            # Cuando confirmes que funciona, borra las dos lineas de arriba del 'with open' 
+            # y quitale la almohadilla (#) a la linea de abajo:
+            # os.system("shutdown /s /t 5")
 
         else:
             self.send_response(403)
