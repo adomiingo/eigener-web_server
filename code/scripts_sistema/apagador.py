@@ -24,11 +24,13 @@ class Manejador(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
-            self.wfile.write(b"Orden recibida. Apagando WERKSTATT en 5 segundos...")
-            print("¡Contraseña correcta! Apagando el sistema...")
+            self.wfile.write(b"Orden recibida. Ejecutando prueba...")
+            print("¡Contraseña correcta! Escribiendo archivo de prueba...")
             
             # os.system("shutdown /s /t 5")
-            os.system("echo EL SERVIDOR WEB HABLA CON PYTHON PERFECTAMENTE > C:\\Users\\socal\\Desktop\\PRUEBA_OK.txt")
+            with open(r"C:\Users\socal\Desktop\PRUEBA_OK.txt", "w") as archivo:
+                archivo.write("El servidor web y Python se comunican perfectamente.")
+
         else:
             self.send_response(403)
             self.end_headers()
