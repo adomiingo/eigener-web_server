@@ -23,13 +23,24 @@ elseif ($accion === 'encender') {
     $paquete = str_repeat(chr(0xff), 6) . str_repeat($mac_binario, 16);
     
     $ip_resuelta = gethostbyname($ip_casa);
-    $fp = @fsockopen('udp://' . $ip_resuelta, $puerto_wow, $errno, $errstr);
-    if ($fp) {
-        fwrite($fp, $paquete);
-        fclose($fp);
-        echo 'ENCENDIDO_OK';
+    
+    // Nivel Ninja: Usamos sockets nativos de bajo nivel para garantizar el disparo UDP
+    $socket = @socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+    if ($socket) {
+        // Habilitamos la opción de broadcast (vital para muchos routers con WoW)
+        @socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
+        
+        // Disparamos el paquete mágico
+        $enviado = @socket_sendto($socket, $paquete, strlen($paquete), 0, $ip_resuelta, $puerto_wow);
+        socket_close($socket);
+        
+        if ($enviado !== false) {
+            echo 'ENCENDIDO_OK';
+        } else {
+            echo 'ERROR_ENVIO';
+        }
     } else {
-        echo 'ERROR';
+        echo 'ERROR_SOCKET'; // Por si el servidor tiene la extensión de sockets desactivada
     }
 }
 elseif ($accion === 'apagar') {
