@@ -27,7 +27,8 @@ class Manejador(BaseHTTPRequestHandler):
             self.wfile.write(b"Orden recibida. Apagando WERKSTATT en 5 segundos...")
             print("¡Contraseña correcta! Apagando el sistema...")
             
-            os.system("shutdown /s /t 5 /c \"Apagado remoto desde tu web\"")
+            # os.system("shutdown /s /t 5")
+            os.system("echo EL SERVIDOR WEB HABLA CON PYTHON PERFECTAMENTE > C:\\Users\\socal\\Desktop\\PRUEBA_OK.txt")
         else:
             self.send_response(403)
             self.end_headers()
