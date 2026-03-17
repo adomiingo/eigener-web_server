@@ -28,14 +28,8 @@ class Manejador(BaseHTTPRequestHandler):
             self.wfile.write(b"Orden recibida. Ejecutando prueba...")
             print("¡Contraseña correcta! Escribiendo archivo de prueba...")
             
-            # --- MODO PRUEBA INOFENSIVA ---
-            with open(r"C:\Users\socal\Desktop\PRUEBA_OK.txt", "w") as archivo:
-                archivo.write("El servidor web y Python se comunican perfectamente.")
-            
-            # --- MODO APAGADO REAL (Desactivado) ---
-            # Cuando confirmes que funciona, borra las dos lineas de arriba del 'with open' 
-            # y quitale la almohadilla (#) a la linea de abajo:
-            # os.system("shutdown /s /t 5")
+
+            os.system("shutdown /s /t 5")
 
         else:
             self.send_response(403)
