@@ -10,7 +10,9 @@ from newspaper import Article
 import feedparser
 
 # --- 1. CARGAR LLAVES SECRETAS ---
-load_dotenv()
+# --- 1. CARGAR LLAVES SECRETAS ---
+load_dotenv("/var/www/html/api/.env")
+
 GEMINI_KEY = os.getenv("GEMINI_KEY")
 # ¡Adiós ElevenLabs! Ya no pagamos peajes.
 
