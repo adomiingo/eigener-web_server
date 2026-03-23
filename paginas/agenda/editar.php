@@ -136,7 +136,7 @@ if (!$tarea) {
 
         .btn {
             flex: 1;
-            padding: 12px;
+            padding: 1%;
             border: none;
             border-radius: 8px;
             font-weight: bold;
