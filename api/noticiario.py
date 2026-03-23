@@ -1,15 +1,21 @@
 import os
+from dotenv import load_dotenv # Nueva librería
+from google import genai
+from elevenlabs.client import ElevenLabs
 import sqlite3
 import requests
 from google import genai # Cambiado al nuevo cliente
 from elevenlabs.client import ElevenLabs
 from newspaper import Article
 import feedparser
+
+load_dotenv()
+
 # --- 1. CONFIGURACIÓN ---
-GEMINI_KEY = "AIzaSyDzER13YWLw9Py4UvqMJjACS8L1h6nGGvY"
-ELEVEN_KEY = "sk_3752dc681f5ade5c8999421d27b02378dc0377bc53473c01"
-# Si aún no tienes un Voice ID, usa este (es una voz masculina profesional):
-VOICE_ID = "orF2qy9215xjwqqxqsWW" 
+GEMINI_KEY = os.getenv("GEMINI_KEY")
+ELEVEN_KEY = os.getenv("ELEVEN_KEY")
+VOICE_ID = os.getenv("VOICE_ID")
+
 DB_PATH = "/var/www/ubungen/kalender.db"
 AUDIO_OUTPUT = "/var/www/html/api/audio/noticias.mp3"
 
