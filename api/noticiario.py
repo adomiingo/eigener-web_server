@@ -98,17 +98,16 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON EDGE TTS (Formato Estricto) ---
-print("🎙️ Calibrando procesador de voz (Elias v2.2)...")
+# --- 6. GENERAR AUDIO CON EDGE TTS (Versión Ultra-Estable) ---
+print("🎙️ Generando audio con Elías (Velocidad optimizada)...")
 
 async def generar_audio():
-    # 'rate' sí acepta porcentajes, pero 'pitch' solo acepta '[+-]XHz'
-    # Probamos con -25Hz para que sea grave sin forzar el motor
+    # Eliminamos el Pitch por completo para evitar errores de Microsoft
+    # El +15% de velocidad quita la sensación de "robot leyendo"
     comunicador = edge_tts.Communicate(
         guion, 
         "es-ES-EliasNeural", 
-        rate="+10%", 
-        pitch="-25Hz"
+        rate="+15%"
     )
     await comunicador.save(AUDIO_OUTPUT)
 
