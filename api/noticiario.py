@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import requests
+import random  # <--- NUEVA LIBRERÍA AÑADIDA
 from dotenv import load_dotenv
 from google import genai
 from elevenlabs.client import ElevenLabs
@@ -11,10 +12,11 @@ import feedparser
 load_dotenv()
 GEMINI_KEY = os.getenv("GEMINI_KEY")
 ELEVEN_KEY = os.getenv("ELEVEN_KEY")
-VOICE_ID = os.getenv("VOICE_ID", "pNInz6obpg8nEByWQX2t") # Usa la voz por defecto si no pusiste una
+VOICE_ID = os.getenv("VOICE_ID", "pNInz6obpg8nEByWQX2t")
 
 DB_PATH = "/var/www/ubungen/kalender.db"
 AUDIO_OUTPUT = "/var/www/html/api/audio/noticias.mp3"
+DESPEDIDAS_PATH = "/var/www/html/api/despedidas.txt" # <--- RUTA DEL ARCHIVO
 
 # --- 2. INICIALIZAR CLIENTES ---
 client_ai = genai.Client(api_key=GEMINI_KEY)
@@ -51,19 +53,30 @@ try:
 except Exception as e:
     tareas_txt = "Error al leer las tareas."
 
+# --- 4.5 ELEGIR DESPEDIDA ALEATORIA ---
+print("🎲 Buscando una frase de cierre...")
+try:
+    with open(DESPEDIDAS_PATH, "r", encoding="utf-8") as f:
+        # Lee todas las líneas, quitando espacios en blanco y líneas vacías
+        despedidas = [linea.strip() for linea in f.readlines() if linea.strip()]
+    
+    # Elige una al azar, o usa una por defecto si el archivo está vacío
+    frase_final = random.choice(despedidas) if despedidas else "Buenos días, señor."
+except FileNotFoundError:
+    frase_final = "Buenos días, señor." # Salvavidas si el archivo no existe
+
 # --- 5. REDACTAR EL GUIÓN ---
 print("🧠 Redactando el guión con Gemini...")
 prompt = f"""
-Actúa como un locutor de radio premium. Escribe el noticiario de hoy.
-Sé directo, épico y usa un tono conversacional fluido (sin asteriscos ni listas).
+Eres un asistente informativo, tú unico proposito es narrar de manera clara y entendedora la información proporcionada. Usa un vocabulario tecnico y rapido, no hagas introducciones, lee los titulares de los siguientes articulos y resume de manera muy breve pero concisa la información (sin asteriscos ni listas).
 
 CONTENIDO A RESUMIR:
 1. Ciudad de Barcelona: {news_bcn}
 2. FC Barcelona: {news_fcb}
 3. Política Europea: {news_eur}
-4. Agenda personal del jefe: {tareas_txt}
+4. Agenda personal del señor: {tareas_txt}
 
-Cierra el programa con esta frase exacta: "Recuerda que eres una puta máquina de matar y nadie puede contigo. Buenos días, señor."
+Cierra el programa con esta frase exacta: "{frase_final}"
 """
 
 # Usamos el modelo que descubrimos que funciona perfectamente
