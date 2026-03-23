@@ -1,4 +1,7 @@
 <?php
+// 0. OBLIGAR AL iPHONE A LEER EN FORMATO UTF-8 (¡La línea mágica para los acentos!)
+header('Content-Type: text/plain; charset=utf-8');
+
 // 1. SEGURIDAD
 $TOKEN_SECRETO = "aineta"; 
 if (!isset($_GET['token']) || $_GET['token'] !== $TOKEN_SECRETO) {
@@ -8,10 +11,9 @@ if (!isset($_GET['token']) || $_GET['token'] !== $TOKEN_SECRETO) {
 
 $texto_final = "Iniciando resumen diario. ... ";
 
-// --- FUNCIÓN CAZADORA DE NOTICIAS (RSS) ---
+// --- FUNCIÓN CAZADORA DE NOTICIAS (Con limpieza de acentos) ---
 function obtener_noticias($url, $limite) {
     $noticias_texto = "";
-    // Suprimimos errores por si Google News tarda en responder
     $rss = @simplexml_load_file($url); 
     
     if ($rss && isset($rss->channel->item)) {
@@ -19,8 +21,12 @@ function obtener_noticias($url, $limite) {
         foreach ($rss->channel->item as $item) {
             if ($count >= $limite) break;
             $titulo = (string)$item->title;
-            // Limpiamos el nombre del periódico al final del titular para que Siri suene más natural
+            
+            // 1. Decodifica símbolos HTML raros de los periódicos (ej: &aacute; -> á)
+            $titulo = html_entity_decode($titulo, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            // 2. Limpiamos el nombre del periódico al final del titular
             $titulo = preg_replace('/ - .*/', '', $titulo);
+            
             $noticias_texto .= $titulo . ". ... ";
             $count++;
         }
@@ -46,7 +52,7 @@ $url_mundo = "https://news.google.com/rss/headlines/section/topic/WORLD?hl=es&gl
 $mundo_news = obtener_noticias($url_mundo, 3);
 $texto_final .= !empty($mundo_news) ? $mundo_news : "Sin titulares internacionales disponibles en este momento. ... ";
 
-// 5. EL TIEMPO (Configurado para las coordenadas de Reus)
+// 5. EL TIEMPO
 $lat = 41.1561; 
 $lon = 1.1069;
 $url_tiempo = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FMadrid&forecast_days=1";
@@ -85,8 +91,9 @@ try {
     } else {
         $texto_final .= "Tienes $cantidad recordatorios para esta mañana. ... ";
         foreach ($tareas as $t) {
-            $nombre = trim($t['betreff']);
-            $descripcion = trim($t['beschreibung']);
+            // Limpiamos también las tareas de tu BD por si escribiste algún acento raro
+            $nombre = html_entity_decode(trim($t['betreff']), ENT_QUOTES, 'UTF-8');
+            $descripcion = html_entity_decode(trim($t['beschreibung']), ENT_QUOTES, 'UTF-8');
             
             $texto_final .= "$nombre. ";
             if (!empty($descripcion)) {
@@ -100,8 +107,7 @@ try {
 }
 
 // 7. DESPEDIDA J.A.R.V.I.S.
-$texto_final .= "Recuerda que eres una máquina de matar y nadie puede contigo, buena suerte y buenos días";
+$texto_final .= "Recuerda que eres una puta máquina de matar y nadie puede contigo, buena suerte y buenos días";
 
-// Imprimir todo el texto junto para que Siri lo lea del tirón
 echo $texto_final;
 ?>
