@@ -136,7 +136,7 @@ if (!$tarea) {
 
         .btn {
             flex: 1;
-            padding: 1%;
+            padding: 12px;
             border: none;
             border-radius: 8px;
             font-weight: bold;
@@ -165,6 +165,7 @@ if (!$tarea) {
         .btn-cancel {
             background-color: #e2e8f0;
             color: #475569;
+            padding: 1%;
         }
 
         .btn-cancel:hover {
