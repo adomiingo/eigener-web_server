@@ -2,25 +2,24 @@ import os
 import sqlite3
 import requests
 import random
+import asyncio
+import edge_tts
 from dotenv import load_dotenv
 from google import genai
-from elevenlabs.client import ElevenLabs
 from newspaper import Article
 import feedparser
 
 # --- 1. CARGAR LLAVES SECRETAS ---
 load_dotenv()
 GEMINI_KEY = os.getenv("GEMINI_KEY")
-ELEVEN_KEY = os.getenv("ELEVEN_KEY")
-VOICE_ID = os.getenv("VOICE_ID", "pNInz6obpg8nEByWQX2t")
+# ¡Adiós ElevenLabs! Ya no pagamos peajes.
 
 DB_PATH = "/var/www/ubungen/kalender.db"
 AUDIO_OUTPUT = "/var/www/html/api/audio/noticias.mp3"
 DESPEDIDAS_PATH = "/var/www/html/api/despedidas.txt"
 
-# --- 2. INICIALIZAR CLIENTES ---
+# --- 2. INICIALIZAR CLIENTE IA ---
 client_ai = genai.Client(api_key=GEMINI_KEY)
-client_11 = ElevenLabs(api_key=ELEVEN_KEY)
 
 # --- 3. RECOLECTAR NOTICIAS ---
 def leer_noticia(rss_url, limite=1):
@@ -45,7 +44,6 @@ news_eur = leer_noticia("https://news.google.com/rss/search?q=politica+Europa+wh
 def obtener_clima(ciudad="Reus"):
     print("🌤️ Consultando satélites meteorológicos...")
     try:
-        # Pide el clima en formato texto: Condiciones, Temp, Sensación térmica y Humedad
         url = f"https://wttr.in/{ciudad}?format=%C,+Temperatura:+%t,+Sensación+térmica:+%f,+Humedad:+%h&lang=es"
         respuesta = requests.get(url, timeout=5)
         if respuesta.status_code == 200:
@@ -80,13 +78,13 @@ except FileNotFoundError:
 # --- 5. REDACTAR EL GUIÓN ---
 print("🧠 Redactando el guión con Gemini...")
 prompt = f"""
-Haz un guión con el supuesto fin de que lo leyera J.A.R.V.I.S de Iron Man, da los buenos días de manera formal, no uses acronimos y si los encuentras expandelos (ej. FC Barcelona = El fútbol club Barcelona), da el nombre completo de las cosas, no te limites a decir únicamente la cabecera, indaga ligeramente en el artículo pero sin entretenerte, mantén un tono formal pero no plano, quiero que el guión tenga un poco de ritmo (sin asteriscos ni listas).
+Haz un guión con el supuesto fin de que lo leyera J.A.R.V.I.S de Iron Man, da los buenos días de manera formal, no uses acrónimos y si los encuentras expándelos (ej. FC Barcelona = El fútbol club Barcelona), da el nombre completo de las cosas, no te limites a decir únicamente la cabecera, indaga ligeramente en el artículo pero sin entretenerte, mantén un tono formal pero no plano, quiero que el guión tenga un poco de ritmo (sin asteriscos ni listas).
 
 CONTENIDO A INFORMAR:
-1. Noticias en relación a la Ciudad de Barcelona: {news_bcn}
-2. Novedades del Fútbol Club Barcelona: {news_fcb}
-3. Actualización de la Política Europea: {news_eur}
-4. Reporte Meteorológico (Aquí intenta resumir todo lo que puedas, no quiero detalles en demsiado exceso): {clima_actual}
+1. Reporte Meteorológico: {clima_actual}
+2. Noticias en relación a la Ciudad de Barcelona: {news_bcn}
+3. Novedades del Fútbol Club Barcelona: {news_fcb}
+4. Actualización de la Política Europea: {news_eur}
 5. Agenda personal del señor para hoy: {tareas_txt}
 
 Cierra el programa con esta frase exacta (Pon una pausa o un punto para que se entienda que tienes que hacer una ligera pausa antes de decirla): "{frase_final}"
@@ -98,19 +96,13 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON ELEVENLABS ---
-print("🎙️ Grabando audio en el estudio...")
-audio_gen = client_11.text_to_speech.convert(
-    text=guion,
-    voice_id=VOICE_ID,
-    model_id="eleven_multilingual_v2",
-    output_format="mp3_44100_128"
-)
+# --- 6. GENERAR AUDIO CON EDGE TTS ---
+print("🎙️ Grabando audio en los servidores de Microsoft Azure...")
+async def generar_audio():
+    # Locutor formal de España (Álvaro). También existe "es-ES-EliasNeural"
+    comunicador = edge_tts.Communicate(guion, "es-ES-AlvaroNeural")
+    await comunicador.save(AUDIO_OUTPUT)
 
-# --- 7. GUARDAR ARCHIVO ---
-os.makedirs(os.path.dirname(AUDIO_OUTPUT), exist_ok=True)
-with open(AUDIO_OUTPUT, "wb") as f:
-    for chunk in audio_gen:
-        if chunk: f.write(chunk)
+asyncio.run(generar_audio())
 
 print(f"✅ ¡Misión cumplida! MP3 generado en: {AUDIO_OUTPUT}")
