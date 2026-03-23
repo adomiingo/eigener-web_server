@@ -98,17 +98,15 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON EDGE TTS (Versión Ultra-Estable) ---
-print("🎙️ Generando audio con Elías (Velocidad optimizada)...")
+# --- 6. GENERAR AUDIO CON EDGE TTS (Limpieza Total) ---
+print("🎙️ Limpiando y enviando guion a la nube...")
 
 async def generar_audio():
-    # Eliminamos el Pitch por completo para evitar errores de Microsoft
-    # El +15% de velocidad quita la sensación de "robot leyendo"
-    comunicador = edge_tts.Communicate(
-        guion, 
-        "es-ES-EliasNeural", 
-        rate="+15%"
-    )
+    # Limpiamos el texto de posibles asteriscos o símbolos que Gemini cuele
+    texto_limpio = guion.replace("*", "").replace("#", "").strip()
+    
+    # Probamos la configuración más básica y robusta posible
+    comunicador = edge_tts.Communicate(texto_limpio, "es-ES-EliasNeural")
     await comunicador.save(AUDIO_OUTPUT)
 
 asyncio.run(generar_audio())
