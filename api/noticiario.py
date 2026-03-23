@@ -17,7 +17,7 @@ AUDIO_OUTPUT = "/var/www/html/api/audio/noticias.mp3"
 
 # --- 2. INICIALIZAR IAs ---
 genai.configure(api_key=GEMINI_KEY)
-ai_model = genai.GenerativeModel('gemini-2.5-pro')
+ai_model = genai.GenerativeModel('gemini-1.5-flash')
 client_11 = ElevenLabs(api_key=ELEVEN_KEY)
 
 # --- 3. RECOLECTAR NOTICIAS (BCN, BARÇA, EUROPA) ---
