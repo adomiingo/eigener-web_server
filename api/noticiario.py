@@ -100,39 +100,34 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON EDGE TTS (Versión Fragmentada) ---
-print("🎙️ Procesando voz por bloques para evitar límites...")
+# --- 6. GENERAR AUDIO CON EDGE TTS (Versión Blindada) ---
+print("🎙️ Procesando voz con limpieza extrema...")
 
 async def generar_audio():
     import re
-    # 1. Limpieza de símbolos
-    texto_limpio = re.sub(r'[*#\-_`>]', '', guion)
-    texto_limpio = " ".join(texto_limpio.split()).strip()
+    # 1. LIMPIEZA EXTREMA: Solo permitimos letras, números y puntuación básica.
+    # Esto elimina emojis, asteriscos, guiones raros y formatos de Gemini.
+    texto_seguro = re.sub(r'[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.,;¿?¡!\s]', '', guion)
+    texto_seguro = " ".join(texto_seguro.split()).strip()
     
-    # 2. Dividimos el texto en frases usando los puntos como guía
-    # Esto evita que el servidor de Microsoft nos corte por exceso de longitud
-    frases = re.split(r'(?<=[.!?]) +', texto_limpio)
-    
-    print(f"📝 Guion dividido en {len(frases)} fragmentos.")
+    print(f"📝 Guion saneado: {len(texto_seguro)} caracteres.")
 
     try:
-        comunicador = edge_tts.Communicate(texto_limpio, "es-ES-EliasNeural", rate="+10%")
+        # Probamos con Álvaro (es-ES-AlvaroNeural), que es el más robusto de Azure
+        comunicador = edge_tts.Communicate(texto_seguro, "es-ES-AlvaroNeural", rate="+12%")
         
-        # Usamos un archivo temporal para ir acumulando el audio
-        with open(AUDIO_OUTPUT, "wb") as f:
-            async for chunk in comunicador.stream():
-                if chunk["type"] == "audio":
-                    f.write(chunk["data"])
-        
+        await comunicador.save(AUDIO_OUTPUT)
         print(f"✅ ¡Misión cumplida! MP3 generado en: {AUDIO_OUTPUT}")
+        
     except Exception as e:
-        print(f"❌ Error durante la generación de audio: {e}")
+        print(f"❌ Error final en la nube: {e}")
+        # Si falla, intentamos una última vez con un texto de emergencia
+        print("⚠️ Reintentando con texto de emergencia...")
+        emergencia = edge_tts.Communicate("Error en el boletín. Por favor, revise el log.", "es-ES-AlvaroNeural")
+        await emergencia.save(AUDIO_OUTPUT)
 
 if __name__ == "__main__":
     asyncio.run(generar_audio())
-
-
-
 
 
 
