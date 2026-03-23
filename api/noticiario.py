@@ -98,19 +98,18 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON EDGE TTS (Versión J.A.R.V.I.S. Tuneada) ---
-print("🎙️ Calibrando procesador de voz (Elias v2)...")
+# --- 6. GENERAR AUDIO CON EDGE TTS (Versión Estable) ---
+print("🎙️ Calibrando procesador de voz (Elias v2.1)...")
 
 async def generar_audio():
-    # 'rate="+10%"' -> Habla más rápido, eliminando el tono pausado de robot.
-    # 'pitch="-10Hz"' -> Le da más profundidad y gravedad a la voz.
-    # 'volume="+0%"' -> Mantenemos el volumen estándar.
-    
+    # Cambiamos Hz por % para que Microsoft no se queje
+    # rate="+10%" -> Un poco más rápido
+    # pitch="-10%" -> Más grave (estilo J.A.R.V.I.S.)
     comunicador = edge_tts.Communicate(
         guion, 
         "es-ES-EliasNeural", 
-        rate="+12%", 
-        pitch="-8Hz"
+        rate="+10%", 
+        pitch="-10%"
     )
     await comunicador.save(AUDIO_OUTPUT)
 
