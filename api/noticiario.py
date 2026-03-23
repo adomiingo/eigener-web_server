@@ -114,7 +114,7 @@ async def generar_audio():
 
     try:
         # Probamos con Álvaro (es-ES-AlvaroNeural), que es el más robusto de Azure
-        comunicador = edge_tts.Communicate(texto_seguro, "es-ES-AlvaroNeural", rate="+12%", pitch="-15Hz")
+        comunicador = edge_tts.Communicate(texto_seguro, "es-ES-AlvaroNeural", rate="+9%", pitch="-19Hz")
         
         await comunicador.save(AUDIO_OUTPUT)
         print(f"✅ ¡Misión cumplida! MP3 generado en: {AUDIO_OUTPUT}")
