@@ -75,10 +75,11 @@ guion = response.text
 
 # --- 6. GENERAR AUDIO CON ELEVENLABS ---
 print("🎙️ Grabando audio en el estudio...")
-audio_gen = client_11.generate(
+audio_gen = client_11.text_to_speech.convert(
     text=guion,
-    voice=VOICE_ID,
-    model="eleven_multilingual_v2"
+    voice_id=VOICE_ID,
+    model_id="eleven_multilingual_v2",
+    output_format="mp3_44100_128"
 )
 
 # --- 7. GUARDAR ARCHIVO ---
