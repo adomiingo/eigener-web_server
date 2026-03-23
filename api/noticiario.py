@@ -1,35 +1,32 @@
 import os
 import sqlite3
 import requests
-import google.generativeai as genai
+from google import genai # Cambiado al nuevo cliente
 from elevenlabs.client import ElevenLabs
 from newspaper import Article
 import feedparser
-#####
 # --- 1. CONFIGURACIÓN ---
 GEMINI_KEY = "AIzaSyDzER13YWLw9Py4UvqMJjACS8L1h6nGGvY"
 ELEVEN_KEY = "sk_3752dc681f5ade5c8999421d27b02378dc0377bc53473c01"
 # Si aún no tienes un Voice ID, usa este (es una voz masculina profesional):
-VOICE_ID = "pNInz6obpg8nEByWQX2t" 
-
+VOICE_ID = "orF2qy9215xjwqqxqsWW" 
 DB_PATH = "/var/www/ubungen/kalender.db"
 AUDIO_OUTPUT = "/var/www/html/api/audio/noticias.mp3"
 
-# --- 2. INICIALIZAR IAs ---
-genai.configure(api_key=GEMINI_KEY)
-ai_model = genai.GenerativeModel('gemini-1.5-flash')
+# --- 2. INICIALIZAR CLIENTES ---
+client_ai = genai.Client(api_key=GEMINI_KEY) # Nuevo formato de cliente
 client_11 = ElevenLabs(api_key=ELEVEN_KEY)
 
-# --- 3. RECOLECTAR NOTICIAS (BCN, BARÇA, EUROPA) ---
+# --- 3. RECOLECTAR NOTICIAS ---
 def leer_noticia(rss_url):
     feed = feedparser.parse(rss_url)
-    if not feed.entries: return "No hay noticias nuevas."
+    if not feed.entries: return "No hay noticias."
     try:
         entry = feed.entries[0]
         art = Article(entry.link)
         art.download()
         art.parse()
-        return f"TITULAR: {entry.title}. CONTENIDO: {art.text[:1200]}"
+        return f"TITULAR: {entry.title}. CONTENIDO: {art.text[:1000]}"
     except:
         return f"TITULAR: {feed.entries[0].title}"
 
@@ -38,32 +35,34 @@ news_bcn = leer_noticia("https://news.google.com/rss/search?q=Barcelona+cultura+
 news_fcb = leer_noticia("https://news.google.com/rss/search?q=FC+Barcelona+when:12h&hl=es&gl=ES")
 news_eur = leer_noticia("https://news.google.com/rss/search?q=politica+Europa+when:24h&hl=es&gl=ES")
 
-# --- 4. LEER TAREAS SQLITE ---
+# --- 4. TAREAS ---
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
-cursor.execute("SELECT betreff, beschreibung FROM aufgaben WHERE zustand = 'Ausstehen' AND recordar_matutino = 1")
-tareas = cursor.fetchall()
-tareas_txt = "\n".join([f"- {t[0]}: {t[1]}" for t in tareas]) if tareas else "Día libre de tareas."
+cursor.execute("SELECT betreff FROM aufgaben WHERE zustand = 'Ausstehen' AND recordar_matutino = 1")
+tareas = [t[0] for t in cursor.fetchall()]
+tareas_txt = ", ".join(tareas) if tareas else "Día libre."
 conn.close()
 
-# --- 5. GENERAR GUIÓN CON GEMINI ---
+# --- 5. GENERAR GUIÓN ---
+print("🧠 Redactando guión...")
 prompt = f"""
-Escribe un guión de radio matutino. Sé directo, épico y motivador. 
-No uses asteriscos, ni listas, solo texto fluido para ser leído por un locutor.
-
-ORDEN:
-1. Saludo breve.
-2. Barcelona: {news_bcn}
-3. Barça: {news_fcb}
-4. Europa: {news_eur}
-5. Tus tareas: {tareas_txt}
-6. Cierre motivador: "Recuerda que eres una puta máquina de matar y nadie puede contigo. Buenos días, señor."
+Escribe un guión de radio. Sé épico y motivador. 
+No uses asteriscos ni listas. Solo texto fluido.
+Noticias BCN: {news_bcn}
+Barça: {news_fcb}
+Europa: {news_eur}
+Tareas: {tareas_txt}
+Cierra con: "Eres una puta máquina de matar y nadie puede contigo. Buenos días, señor."
 """
 
-print("🧠 Redactando guión...")
-guion = ai_model.generate_content(prompt).text
+# Nueva forma de generar contenido
+response = client_ai.models.generate_content(
+    model="gemini-1.5-flash", 
+    contents=prompt
+)
+guion = response.text
 
-# --- 6. CONVERTIR A AUDIO (ElevenLabs) ---
+# --- 6. GENERAR AUDIO ---
 print("🎙️ Generando audio...")
 audio_gen = client_11.generate(
     text=guion,
@@ -71,10 +70,8 @@ audio_gen = client_11.generate(
     model="eleven_multilingual_v2"
 )
 
-# --- 7. GUARDAR ARCHIVO ---
+# --- 7. GUARDAR ---
 os.makedirs(os.path.dirname(AUDIO_OUTPUT), exist_ok=True)
-if os.path.exists(AUDIO_OUTPUT): os.remove(AUDIO_OUTPUT)
-
 with open(AUDIO_OUTPUT, "wb") as f:
     for chunk in audio_gen:
         if chunk: f.write(chunk)
