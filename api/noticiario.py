@@ -100,29 +100,34 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON EDGE TTS (Limpieza y Seguridad) ---
-print("🎙️ Procesando voz con filtro de seguridad...")
+# --- 6. GENERAR AUDIO CON EDGE TTS (Versión Fragmentada) ---
+print("🎙️ Procesando voz por bloques para evitar límites...")
 
 async def generar_audio():
-    # 1. Limpieza total de Markdown y símbolos de Gemini
     import re
-    # Quitamos asteriscos, almohadillas, guiones de lista y backticks
+    # 1. Limpieza de símbolos
     texto_limpio = re.sub(r'[*#\-_`>]', '', guion)
-    # Normalizamos espacios y saltos de línea
     texto_limpio = " ".join(texto_limpio.split()).strip()
     
-    # 2. Imprimimos una pequeña muestra para verificar
-    print(f"📝 Guion listo ({len(texto_limpio)} caracteres).")
+    # 2. Dividimos el texto en frases usando los puntos como guía
+    # Esto evita que el servidor de Microsoft nos corte por exceso de longitud
+    frases = re.split(r'(?<=[.!?]) +', texto_limpio)
+    
+    print(f"📝 Guion dividido en {len(frases)} fragmentos.")
 
     try:
-        # Usamos Elias con un ligero aumento de velocidad para naturalidad
         comunicador = edge_tts.Communicate(texto_limpio, "es-ES-EliasNeural", rate="+10%")
-        await comunicador.save(AUDIO_OUTPUT)
+        
+        # Usamos un archivo temporal para ir acumulando el audio
+        with open(AUDIO_OUTPUT, "wb") as f:
+            async for chunk in comunicador.stream():
+                if chunk["type"] == "audio":
+                    f.write(chunk["data"])
+        
         print(f"✅ ¡Misión cumplida! MP3 generado en: {AUDIO_OUTPUT}")
     except Exception as e:
         print(f"❌ Error durante la generación de audio: {e}")
 
-# Ejecutar el proceso asíncrono
 if __name__ == "__main__":
     asyncio.run(generar_audio())
 
