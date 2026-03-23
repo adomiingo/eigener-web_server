@@ -137,9 +137,9 @@ if (!$tarea) {
         .btn {
             flex: 1;
             height: 48px;
-            /* <-- Añade esto para igualar alturas a la fuerza */
+            /* 🛠️ FIJAMOS LA ALTURA A LA FUERZA */
             padding: 0 12px;
-            /* Cambiamos el padding para que no sume altura extra */
+            /* 🛠️ CAMBIAMOS A 0 SUPERIOR E INFERIOR */
             border: none;
             border-radius: 8px;
             font-weight: bold;
