@@ -43,7 +43,7 @@ news_fcb = leer_noticia("https://news.google.com/rss/search?q=FC+Barcelona+when:
 news_eur = leer_noticia("https://news.google.com/rss/search?q=politica+Europa+when:24h&hl=es&gl=ES", 2)
 
 # --- 3.5 RECOLECTAR METEOROLOGÍA ---
-def obtener_clima(ciudad="Reus"):
+def obtener_clima(ciudad="Barcelona"):
     print("🌤️ Consultando satélites meteorológicos...")
     try:
         url = f"https://wttr.in/{ciudad}?format=%C,+Temperatura:+%t,+Sensación+térmica:+%f,+Humedad:+%h&lang=es"
@@ -98,11 +98,20 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON EDGE TTS ---
-print("🎙️ Grabando audio en los servidores de Microsoft Azure...")
+# --- 6. GENERAR AUDIO CON EDGE TTS (Versión J.A.R.V.I.S. Tuneada) ---
+print("🎙️ Calibrando procesador de voz (Elias v2)...")
+
 async def generar_audio():
-    # Locutor formal de España (Álvaro). También existe "es-ES-EliasNeural"
-    comunicador = edge_tts.Communicate(guion, "es-ES-AlvaroNeural")
+    # 'rate="+10%"' -> Habla más rápido, eliminando el tono pausado de robot.
+    # 'pitch="-10Hz"' -> Le da más profundidad y gravedad a la voz.
+    # 'volume="+0%"' -> Mantenemos el volumen estándar.
+    
+    comunicador = edge_tts.Communicate(
+        guion, 
+        "es-ES-EliasNeural", 
+        rate="+12%", 
+        pitch="-8Hz"
+    )
     await comunicador.save(AUDIO_OUTPUT)
 
 asyncio.run(generar_audio())
