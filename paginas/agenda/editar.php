@@ -134,24 +134,28 @@ if (!$tarea) {
             gap: 10px;
         }
 
-        .btn {
+       .btn {
             flex: 1;
             height: 48px;
-            /* 🛠️ FIJAMOS LA ALTURA A LA FUERZA */
-            padding: 0 12px;
-            /* 🛠️ CAMBIAMOS A 0 SUPERIOR E INFERIOR */
-            border: none;
+            /* Reseteo absoluto para igualar <a> y <button> */
+            margin: 0;
+            padding: 0;
+            border: 1px solid transparent; /* Fuerza a que el tag <a> reserve el espacio del borde que ya tiene <button> */
             border-radius: 8px;
+            
             font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            transition: 0.2s;
-            box-sizing: border-box;
             font-family: inherit;
             font-size: 1rem;
-            display: flex;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+            box-sizing: border-box;
+            
+            /* Centrado Flexbox */
+            display: inline-flex;
             justify-content: center;
             align-items: center;
+            vertical-align: middle; /* Alineación forzada en la misma línea */
         }
 
         .btn-save {
