@@ -5,7 +5,7 @@ import google.generativeai as genai
 from elevenlabs.client import ElevenLabs
 from newspaper import Article
 import feedparser
-
+#####
 # --- 1. CONFIGURACIÓN ---
 GEMINI_KEY = "AIzaSyBcvQ93Vb6x8XptBXAm_Bf_-Nrb9PKFaas"
 ELEVEN_KEY = "sk_3752dc681f5ade5c8999421d27b02378dc0377bc53473c01"
