@@ -68,15 +68,15 @@ except FileNotFoundError:
 # --- 5. REDACTAR EL GUIÓN ---
 print("🧠 Redactando el guión con Gemini...")
 prompt = f"""
-Eres un asistente informativo, tú unico proposito es narrar de manera clara y entendedora la información proporcionada. Usa un vocabulario tecnico y rapido, no hagas introducciones, lee los titulares de los siguientes articulos y resume de manera muy breve pero concisa la información (sin asteriscos ni listas).
+Haz un guión con el supuesto fin de que lo leyera J.A.R.V.I.S de Iron Man, da los buenos días de manera formal, no uses acronimos y si los encuentras expandelos (ej. FC Barcelona = El fútbol club Barcelona), da el nombre completo de las cosas, no te limites a decir únicamente la cabezera, indaga ligeramente en el artículo pero sin entretenerte, mantén un tono formal pero no plano, quiero que el guión tenga un poco de ritmo (asteriscos ni listas).
 
 CONTENIDO A RESUMIR:
-1. Ciudad de Barcelona: {news_bcn}
-2. FC Barcelona: {news_fcb}
-3. Política Europea: {news_eur}
-4. Agenda personal del señor: {tareas_txt}
+1. Noticias en relación a la Ciudad de Barcelona: {news_bcn}
+2. Novedades del FC Barcelona: {news_fcb}
+3. Actualizacion de la Política Europea: {news_eur}
+4. Agenda personal del señor para hoy: {tareas_txt}
 
-Cierra el programa con esta frase exacta: "{frase_final}"
+Cierra el programa con esta frase exacta (Pon una pausa o un punto para que se entienda que tienes que hacer una ligera pausa antes de decirla): "{frase_final}"!
 """
 
 # Usamos el modelo que descubrimos que funciona perfectamente
