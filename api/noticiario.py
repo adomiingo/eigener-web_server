@@ -77,6 +77,8 @@ try:
 except FileNotFoundError:
     frase_final = "Que tenga un excelente día, señor."
 
+# ... (Todo lo anterior se mantiene igual hasta el punto 5)
+
 # --- 5. REDACTAR EL GUIÓN ---
 print("🧠 Redactando el guión con Gemini...")
 prompt = f"""
@@ -98,17 +100,37 @@ response = client_ai.models.generate_content(
 )
 guion = response.text
 
-# --- 6. GENERAR AUDIO CON EDGE TTS (Limpieza Total) ---
-print("🎙️ Limpiando y enviando guion a la nube...")
+# --- 6. GENERAR AUDIO CON EDGE TTS (Limpieza y Seguridad) ---
+print("🎙️ Procesando voz con filtro de seguridad...")
 
 async def generar_audio():
-    # Limpiamos el texto de posibles asteriscos o símbolos que Gemini cuele
-    texto_limpio = guion.replace("*", "").replace("#", "").strip()
+    # 1. Limpieza total de Markdown y símbolos de Gemini
+    import re
+    # Quitamos asteriscos, almohadillas, guiones de lista y backticks
+    texto_limpio = re.sub(r'[*#\-_`>]', '', guion)
+    # Normalizamos espacios y saltos de línea
+    texto_limpio = " ".join(texto_limpio.split()).strip()
     
-    # Probamos la configuración más básica y robusta posible
-    comunicador = edge_tts.Communicate(texto_limpio, "es-ES-EliasNeural")
-    await comunicador.save(AUDIO_OUTPUT)
+    # 2. Imprimimos una pequeña muestra para verificar
+    print(f"📝 Guion listo ({len(texto_limpio)} caracteres).")
 
-asyncio.run(generar_audio())
+    try:
+        # Usamos Elias con un ligero aumento de velocidad para naturalidad
+        comunicador = edge_tts.Communicate(texto_limpio, "es-ES-EliasNeural", rate="+10%")
+        await comunicador.save(AUDIO_OUTPUT)
+        print(f"✅ ¡Misión cumplida! MP3 generado en: {AUDIO_OUTPUT}")
+    except Exception as e:
+        print(f"❌ Error durante la generación de audio: {e}")
 
-print(f"✅ ¡Misión cumplida! MP3 generado en: {AUDIO_OUTPUT}")
+# Ejecutar el proceso asíncrono
+if __name__ == "__main__":
+    asyncio.run(generar_audio())
+
+
+
+
+
+
+
+
+
