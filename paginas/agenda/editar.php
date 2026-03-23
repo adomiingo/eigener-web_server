@@ -136,15 +136,16 @@ if (!$tarea) {
 
         .btn {
             flex: 1;
-            padding: 12px;
+            height: 48px;
+            /* <-- Añade esto para igualar alturas a la fuerza */
+            padding: 0 12px;
+            /* Cambiamos el padding para que no sume altura extra */
             border: none;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
             transition: 0.2s;
-
-            /* TRUCO NINJA PARA IGUALAR <a> Y <button> */
             box-sizing: border-box;
             font-family: inherit;
             font-size: 1rem;
@@ -165,7 +166,6 @@ if (!$tarea) {
         .btn-cancel {
             background-color: #e2e8f0;
             color: #475569;
-            padding: 1%;
         }
 
         .btn-cancel:hover {
