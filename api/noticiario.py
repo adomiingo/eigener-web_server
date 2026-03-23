@@ -7,7 +7,7 @@ from newspaper import Article
 import feedparser
 #####
 # --- 1. CONFIGURACIÓN ---
-GEMINI_KEY = "AIzaSyBcvQ93Vb6x8XptBXAm_Bf_-Nrb9PKFaas"
+GEMINI_KEY = "AIzaSyDzER13YWLw9Py4UvqMJjACS8L1h6nGGvY"
 ELEVEN_KEY = "sk_3752dc681f5ade5c8999421d27b02378dc0377bc53473c01"
 # Si aún no tienes un Voice ID, usa este (es una voz masculina profesional):
 VOICE_ID = "pNInz6obpg8nEByWQX2t" 
