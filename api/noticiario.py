@@ -96,14 +96,14 @@ def main():
     despedida = obtener_despedida()
     
     prompt = f"""
-    Eres un asistente personal de élite. Tu objetivo es redactar un noticiario matutino de unos 3 minutos de lectura en voz alta.
+    Eres un asistente personal de élite. Tu objetivo es redactar un noticiario matutino de unos 3 minutos de lectura en voz alta. Tu señor vive en Barcelona, tienes que mantener un tono formal pero sin ser exagerado.
     Escribe ESTRICTAMENTE EN TEXTO PLANO. Prohibido usar asteriscos, hashtags, negritas o listas con viñetas. Usa puntuación natural (comas y puntos) para que el motor de voz respire.
 
     Sigue EXACTAMENTE esta estructura y orden:
     1. Empieza diciendo "Buenos días".
     2. Da el parte meteorológico detallado pero útil (como la app del tiempo de iOS), basándote en estos datos: {clima}
-    3. Haz un resumen de noticias de entre 7 y 10 artículos hilados de forma natural. Debes incluir obligatoriamente: lo más comentado del día, novedades tecnológicas, noticias positivas o de ocio en Barcelona, y una breve mención a la geopolítica o conflictos mundiales relevantes. Base de datos de titulares: {noticias_crudo}
-    4. Deportes: Revisa los titulares e informa si hoy hay algún partido importante de La Liga española. Si lo hay, haz un micro análisis de cómo afectaría a la clasificación.
+    3. Haz un resumen de noticias de entre 7 y 10 artículos hilados de forma natural. Debes incluir: lo más comentado del día, novedades tecnológicas alrededor del mundo (si hay, si no hay no), noticias positivas o de ocio en Barcelona (recuerda que tu amo vive en Barcelona, así que sé directo: "Este fin de semana puedes..."), y una breve mención a la geopolítica o conflictos mundiales relevantes. Base de datos de titulares: {noticias_crudo}
+    4. Deportes: Revisa los titulares e informa si hoy hay algún partido importante de La Liga española y/o de champions league. Haz un micro análisis de cómo afectaría a la clasificación.
     5. Citas: Informa de la agenda personal. Usa un formato cercano y directo, por ejemplo: "Hoy has quedado con...", "Hoy tienes hora para...". Datos de agenda: {citas}
     6. Cierra el discurso EXACTAMENTE con esta frase: "{despedida}"
     """
