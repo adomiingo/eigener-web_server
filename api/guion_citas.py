@@ -23,7 +23,7 @@ def main():
     conn.close()
 
     if not citas:
-        texto_final = "No hay citas programadas en tu agenda para los próximos tres días."
+        texto_final = "Agenda libre, puedes estar tranquilo"
     else:
         lista_citas = "\n".join([f"- {c[0]} (Fecha: {c[1]})" for c in citas])
         

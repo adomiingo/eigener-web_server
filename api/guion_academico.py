@@ -23,7 +23,7 @@ def main():
     conn.close()
 
     if not tareas:
-        texto_final = "No tienes tareas académicas pendientes para los próximos dos días. Todo al día."
+        texto_final = "Libre de clases, libre de estrés. Disfruta del día"
     else:
         lista_tareas = "\n".join([f"- {t[0]} (Fecha: {t[1]})" for t in tareas])
         
