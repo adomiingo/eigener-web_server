@@ -26,6 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $sql = "INSERT INTO aufgaben (betreff, beschreibung, fach, daten, zustand) VALUES (?, ?, ?, ?, 'Ausstehen')";
             $stmt = $db->prepare($sql);
             $stmt->execute([$_POST['betreff'], $_POST['beschreibung'], $_POST['fach'], $_POST['daten']]);
+            
+            // --- GATILLO PARA ACTUALIZAR LOS GUIONES DE SIRI ---
+            exec('python3 /var/www/html/api/guion_academico.py > /dev/null 2>&1 &');
+            exec('python3 /var/www/html/api/guion_citas.py > /dev/null 2>&1 &');
+            exec('python3 /var/www/html/api/guion_personal.py > /dev/null 2>&1 &');
+            
             $mensaje = $lang['msg_tarea_guardada'];
             $mensaje_tipo = "success";
         } catch (PDOException $e) {
@@ -58,15 +64,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <label for="beschreibung"><?php echo isset($lang['label_descripcion']) ? $lang['label_descripcion'] : 'Descripción'; ?></label>
             <textarea id="beschreibung" name="beschreibung" rows="3" placeholder="<?php echo isset($lang['placeholder_descripcion']) ? $lang['placeholder_descripcion'] : 'Detalles adicionales...'; ?>"></textarea>
 
-            <label for="fach"><?php echo isset($lang['label_fach']) ? $lang['label_fach'] : 'Asignatura'; ?></label>
-            <select id="fach" name="fach">
-                <option value="Redes">Redes Locales</option>
-                <option value="Sistemas">Sistemas Operativos</option>
-                <option value="Seguridad">Seguridad Informática</option>
-                <option value="Web">Aplicaciones Web</option>
-                <option value="Personal">Personal</option>
-                <option value="Server">Server Idea</option>
-            </select>
+            <label for="fach"><?php echo isset($lang['label_fach']) ? $lang['label_fach'] : 'Categoría'; ?></label>
+            <input list="categorias-existentes" name="fach" id="fach" placeholder="Ej: Citas, Personal, etc." required autocomplete="off">
+            
+            <datalist id="categorias-existentes">
+                <option value="Citas">
+                <option value="Personal">
+                <option value="Académico">
+                
+                <?php
+                try {
+                    $stmt_cat = $db->query("SELECT DISTINCT fach FROM aufgaben WHERE fach IS NOT NULL AND fach != '' ORDER BY fach");
+                    $categorias_default = ['Citas', 'Personal', 'Académico'];
+                    
+                    while ($row = $stmt_cat->fetch(PDO::FETCH_ASSOC)) {
+                        if (!in_array($row['fach'], $categorias_default)) {
+                            echo '<option value="' . htmlspecialchars($row['fach']) . '">';
+                        }
+                    }
+                } catch (PDOException $e) {
+                }
+                ?>
+            </datalist>
 
             <label for="daten"><?php echo isset($lang['label_datum']) ? $lang['label_datum'] : 'Fecha'; ?></label>
             <input type="date" id="daten" name="daten" min="<?php echo date('Y-m-d'); ?>" required>

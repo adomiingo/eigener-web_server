@@ -40,6 +40,12 @@ function enviar_telegram($mensaje) {
 if (isset($_GET['delete'])) {
     $stmt = $db->prepare("DELETE FROM aufgaben WHERE id = ?");
     $stmt->execute([$_GET['delete']]);
+    
+    // --- GATILLO DE BORRADO ---
+    exec('python3 /var/www/html/api/guion_academico.py > /dev/null 2>&1 &');
+    exec('python3 /var/www/html/api/guion_citas.py > /dev/null 2>&1 &');
+    exec('python3 /var/www/html/api/guion_personal.py > /dev/null 2>&1 &');
+
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
@@ -60,6 +66,11 @@ if (isset($_GET['toggle'])) {
 
         $stmt_del = $db->prepare("DELETE FROM aufgaben WHERE id = ?");
         $stmt_del->execute([$id_tarea]);
+
+        // --- GATILLO DE TAREA COMPLETADA ---
+        exec('python3 /var/www/html/api/guion_academico.py > /dev/null 2>&1 &');
+        exec('python3 /var/www/html/api/guion_citas.py > /dev/null 2>&1 &');
+        exec('python3 /var/www/html/api/guion_personal.py > /dev/null 2>&1 &');
 
         $mensaje = "✅ *Tarea Completada y Archivada*\nHas terminado: *" . $tarea['betreff'] . "* (" . $tarea['fach'] . ")";
         enviar_telegram($mensaje);
@@ -161,10 +172,16 @@ $aufgaben = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="filter-section">
             <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <select name="f_fach">
-                    <option value=""><?php echo isset($lang['asignatura']) ? $lang['asignatura'] : 'Asignatura'; ?></option>
-                    <option value="Redes" <?php if (@$_GET['f_fach'] == 'Redes') echo 'selected'; ?>>Redes</option>
-                    <option value="Sistemas" <?php if (@$_GET['f_fach'] == 'Sistemas') echo 'selected'; ?>>Sistemas</option>
-                    <option value="Web" <?php if (@$_GET['f_fach'] == 'Web') echo 'selected'; ?>>Web</option>
+                    <option value=""><?php echo isset($lang['asignatura']) ? $lang['asignatura'] : 'Categoría'; ?></option>
+                    <?php
+                    try {
+                        $stmt_cats = $db->query("SELECT DISTINCT fach FROM aufgaben WHERE fach IS NOT NULL AND fach != '' ORDER BY fach");
+                        while ($c = $stmt_cats->fetch(PDO::FETCH_ASSOC)) {
+                            $selected = (@$_GET['f_fach'] == $c['fach']) ? 'selected' : '';
+                            echo '<option value="' . htmlspecialchars($c['fach']) . '" ' . $selected . '>' . htmlspecialchars($c['fach']) . '</option>';
+                        }
+                    } catch (PDOException $e) {}
+                    ?>
                 </select>
                 <button type="submit" style="margin:0; padding: 5px 15px; width: auto;"><?php echo isset($lang['boton_filtrar']) ? $lang['boton_filtrar'] : 'Filtrar'; ?></button>
                 <a href="<?php echo $_SERVER['PHP_SELF']; ?>" style="font-size: 12px; align-self: center; text-decoration: none; color: #475569;"><?php echo isset($lang['boton_limpiar']) ? $lang['boton_limpiar'] : 'Limpiar'; ?></a>

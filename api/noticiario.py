@@ -1,136 +1,133 @@
 import os
 import sqlite3
 import requests
+import feedparser
 import random
-import asyncio
-import edge_tts
+import re
+from datetime import datetime
 from dotenv import load_dotenv
 from google import genai
-from newspaper import Article
-import feedparser
 
-# --- 1. CARGAR LLAVES SECRETAS ---
-# --- 1. CARGAR LLAVES SECRETAS ---
+# --- CONFIGURACIÓN ---
 load_dotenv("/var/www/html/api/.env")
-
-GEMINI_KEY = os.getenv("GEMINI_KEY")
-# ¡Adiós ElevenLabs! Ya no pagamos peajes.
+client_ai = genai.Client(api_key=os.getenv("GEMINI_KEY"))
 
 DB_PATH = "/var/www/ubungen/kalender.db"
-AUDIO_OUTPUT = "/var/www/html/api/audio/noticias.mp3"
+TXT_OUTPUT = "/var/www/html/api/noticiario_hoy.txt"
 DESPEDIDAS_PATH = "/var/www/html/api/despedidas.txt"
 
-# --- 2. INICIALIZAR CLIENTE IA ---
-client_ai = genai.Client(api_key=GEMINI_KEY)
-
-# --- 3. RECOLECTAR NOTICIAS ---
-def leer_noticia(rss_url, limite=1):
-    feed = feedparser.parse(rss_url)
-    textos = []
-    for entry in feed.entries[:limite]:
-        try:
-            art = Article(entry.link)
-            art.download()
-            art.parse()
-            textos.append(f"TITULAR: {entry.title}. CONTENIDO: {art.text[:1000]}")
-        except:
-            textos.append(f"TITULAR: {entry.title}")
-    return "\n\n".join(textos) if textos else "Sin noticias destacadas."
-
-print("🛰️ Extrayendo información del mundo...")
-news_bcn = leer_noticia("https://news.google.com/rss/search?q=Barcelona+cultura+agenda+when:24h&hl=es&gl=ES", 1)
-news_fcb = leer_noticia("https://news.google.com/rss/search?q=FC+Barcelona+when:12h&hl=es&gl=ES", 2)
-news_eur = leer_noticia("https://news.google.com/rss/search?q=politica+Europa+when:24h&hl=es&gl=ES", 2)
-
-# --- 3.5 RECOLECTAR METEOROLOGÍA ---
-def obtener_clima(ciudad="Barcelona"):
-    print("🌤️ Consultando satélites meteorológicos...")
+# --- 1. METEOROLOGÍA (Estilo iOS con Open-Meteo) ---
+def obtener_clima():
     try:
-        url = f"https://wttr.in/{ciudad}?format=%C,+Temperatura:+%t,+Sensación+térmica:+%f,+Humedad:+%h&lang=es"
-        respuesta = requests.get(url, timeout=5)
-        if respuesta.status_code == 200:
-            return f"Ciudad de {ciudad}: {respuesta.text}"
-        return "Datos meteorológicos inaccesibles temporalmente."
-    except:
-        return "Conexión con el satélite meteorológico perdida."
-
-clima_actual = obtener_clima()
-
-# --- 4. TAREAS ---
-print("📅 Leyendo tu base de datos...")
-try:
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT betreff FROM aufgaben WHERE zustand = 'Ausstehen' AND recordar_matutino = 1")
-    tareas = [t[0] for t in cursor.fetchall()]
-    tareas_txt = ", ".join(tareas) if tareas else "Día libre, sin tareas matutinas programadas."
-    conn.close()
-except Exception as e:
-    tareas_txt = "Error al leer los registros de la agenda."
-
-# --- 4.5 ELEGIR DESPEDIDA ALEATORIA ---
-print("🎲 Buscando una frase de cierre...")
-try:
-    with open(DESPEDIDAS_PATH, "r", encoding="utf-8") as f:
-        despedidas = [linea.strip() for linea in f.readlines() if linea.strip()]
-    frase_final = random.choice(despedidas) if despedidas else "Que tenga un excelente día, señor."
-except FileNotFoundError:
-    frase_final = "Que tenga un excelente día, señor."
-
-# ... (Todo lo anterior se mantiene igual hasta el punto 5)
-
-# --- 5. REDACTAR EL GUIÓN ---
-print("🧠 Redactando el guión con Gemini...")
-prompt = f"""
-Haz un guión con el supuesto fin de que lo leyera J.A.R.V.I.S de Iron Man, da los buenos días de manera formal, no uses acrónimos y si los encuentras expándelos (ej. FC Barcelona = El fútbol club Barcelona), da el nombre completo de las cosas, no te limites a decir únicamente la cabecera, indaga ligeramente en el artículo pero sin entretenerte, mantén un tono formal pero no plano, quiero que el guión tenga un poco de ritmo (sin asteriscos ni listas).
-
-CONTENIDO A INFORMAR:
-1. Reporte Meteorológico: {clima_actual}
-2. Noticias en relación a la Ciudad de Barcelona: {news_bcn}
-3. Novedades del Fútbol Club Barcelona: {news_fcb}
-4. Actualización de la Política Europea: {news_eur}
-5. Agenda personal del señor para hoy: {tareas_txt}
-
-Cierra el programa con esta frase exacta (Pon una pausa o un punto para que se entienda que tienes que hacer una ligera pausa antes de decirla): "{frase_final}"
-"""
-
-response = client_ai.models.generate_content(
-    model="gemini-2.5-flash", 
-    contents=prompt
-)
-guion = response.text
-
-# --- 6. GENERAR AUDIO CON EDGE TTS (Versión Blindada) ---
-print("🎙️ Procesando voz con limpieza extrema...")
-
-async def generar_audio():
-    import re
-    # 1. LIMPIEZA EXTREMA: Solo permitimos letras, números y puntuación básica.
-    # Esto elimina emojis, asteriscos, guiones raros y formatos de Gemini.
-    texto_seguro = re.sub(r'[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.,;¿?¡!\s]', '', guion)
-    texto_seguro = " ".join(texto_seguro.split()).strip()
-    
-    print(f"📝 Guion saneado: {len(texto_seguro)} caracteres.")
-
-    try:
-        # Probamos con Álvaro (es-ES-AlvaroNeural), que es el más robusto de Azure
-        comunicador = edge_tts.Communicate(texto_seguro, "es-ES-AlvaroNeural", rate="+9%", pitch="-10Hz")
+        # Coordenadas de Barcelona
+        url = "https://api.open-meteo.com/v1/forecast?latitude=41.3888&longitude=2.159&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&current_weather=true&timezone=Europe%2FMadrid"
+        r = requests.get(url, timeout=5).json()
         
-        await comunicador.save(AUDIO_OUTPUT)
-        print(f"✅ ¡Misión cumplida! MP3 generado en: {AUDIO_OUTPUT}")
+        temp_actual = r['current_weather']['temperature']
+        temp_max = r['daily']['temperature_2m_max'][0]
+        temp_min = r['daily']['temperature_2m_min'][0]
+        lluvia = r['daily']['precipitation_probability_max'][0]
+        
+        return f"Actual: {temp_actual}°C. Máxima hoy: {temp_max}°C. Mínima: {temp_min}°C. Probabilidad de lluvia: {lluvia}%."
+    except:
+        return "No se ha podido contactar con el satélite meteorológico."
+
+# --- 2. NOTICIAS (El Buffet de RSS) ---
+def recolectar_noticias():
+    fuentes = [
+        # Tendencias / Más habladas
+        "https://news.google.com/rss?hl=es&gl=ES",
+        # Tecnología
+        "https://news.google.com/rss/search?q=tecnologia+innovacion+when:24h&hl=es&gl=ES",
+        # Barcelona (Positivas / Agenda)
+        "https://news.google.com/rss/search?q=Barcelona+(buenas+noticias+OR+cultura+OR+fin+de+semana)+when:24h&hl=es&gl=ES",
+        # Bélicas importantes
+        "https://news.google.com/rss/search?q=(guerra+OR+conflicto+internacional+OR+geopolitica)+when:24h&hl=es&gl=ES",
+        # La Liga (Para el análisis deportivo)
+        "https://news.google.com/rss/search?q=La+Liga+partidos+hoy+clasificacion+when:24h&hl=es&gl=ES"
+    ]
+    
+    titulares = []
+    for url in fuentes:
+        try:
+            feed = feedparser.parse(url)
+            # Cogemos 3 de cada categoría para que Gemini tenga de dónde elegir
+            titulares.extend([entry.title for entry in feed.entries[:3]])
+        except:
+            continue
+            
+    return " | ".join(titulares)
+
+# --- 3. CITAS (Agenda) ---
+def obtener_citas():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        # Filtramos por citas pendientes
+        cursor.execute("SELECT betreff, beschreibung FROM aufgaben WHERE zustand = 'Ausstehen' AND fach = 'Citas'")
+        citas = cursor.fetchall()
+        conn.close()
+        
+        if not citas:
+            return "Día libre. No hay citas programadas en la agenda."
+            
+        lista = []
+        for c in citas:
+            desc = f" ({c[1]})" if c[1] else ""
+            lista.append(f"{c[0]}{desc}")
+        return "\n".join(lista)
+    except Exception:
+        return "Error al leer la base de datos de la agenda."
+
+# --- 4. DESPEDIDA ALEATORIA ---
+def obtener_despedida():
+    try:
+        with open(DESPEDIDAS_PATH, "r", encoding="utf-8") as f:
+            lineas = [l.strip() for l in f.readlines() if l.strip()]
+            return random.choice(lineas) if lineas else "Que tenga un excelente día, señor."
+    except:
+        return "Que tenga un excelente día, señor."
+
+# --- 5. EL CEREBRO: REDACCIÓN CON GEMINI ---
+def main():
+    clima = obtener_clima()
+    noticias_crudo = recolectar_noticias()
+    citas = obtener_citas()
+    despedida = obtener_despedida()
+    
+    prompt = f"""
+    Eres un asistente personal de élite. Tu objetivo es redactar un noticiario matutino de unos 3 minutos de lectura en voz alta.
+    Escribe ESTRICTAMENTE EN TEXTO PLANO. Prohibido usar asteriscos, hashtags, negritas o listas con viñetas. Usa puntuación natural (comas y puntos) para que el motor de voz respire.
+
+    Sigue EXACTAMENTE esta estructura y orden:
+    1. Empieza diciendo "Buenos días".
+    2. Da el parte meteorológico detallado pero útil (como la app del tiempo de iOS), basándote en estos datos: {clima}
+    3. Haz un resumen de noticias de entre 7 y 10 artículos hilados de forma natural. Debes incluir obligatoriamente: lo más comentado del día, novedades tecnológicas, noticias positivas o de ocio en Barcelona, y una breve mención a la geopolítica o conflictos mundiales relevantes. Base de datos de titulares: {noticias_crudo}
+    4. Deportes: Revisa los titulares e informa si hoy hay algún partido importante de La Liga española. Si lo hay, haz un micro análisis de cómo afectaría a la clasificación.
+    5. Citas: Informa de la agenda personal. Usa un formato cercano y directo, por ejemplo: "Hoy has quedado con...", "Hoy tienes hora para...". Datos de agenda: {citas}
+    6. Cierra el discurso EXACTAMENTE con esta frase: "{despedida}"
+    """
+    
+    try:
+        response = client_ai.models.generate_content(
+            model="gemini-2.5-flash", 
+            contents=prompt
+        )
+        
+        # Limpieza de seguridad por si Gemini intenta colar markdown
+        texto_limpio = re.sub(r'[*#_`>\-]', '', response.text)
+        texto_final = " ".join(texto_limpio.split()).strip()
+        
+        # Guardar en texto plano en el servidor
+        with open(TXT_OUTPUT, "w", encoding="utf-8") as f:
+            f.write(texto_final)
+            
+        print(f"✅ Noticiario guardado correctamente en: {TXT_OUTPUT}")
         
     except Exception as e:
-        print(f"❌ Error final en la nube: {e}")
-        # Si falla, intentamos una última vez con un texto de emergencia
-        print("⚠️ Reintentando con texto de emergencia...")
-        emergencia = edge_tts.Communicate("Error en el boletín. Por favor, revise el log.", "es-ES-AlvaroNeural")
-        await emergencia.save(AUDIO_OUTPUT)
+        # Archivo de emergencia por si falla la API
+        with open(TXT_OUTPUT, "w", encoding="utf-8") as f:
+            f.write("Buenos días. Ha ocurrido un error al generar el noticiario de hoy. Por favor, revisa mi conexión neuronal.")
 
 if __name__ == "__main__":
-    asyncio.run(generar_audio())
-
-
-
-
-
-
+    main()

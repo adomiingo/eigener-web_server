@@ -22,6 +22,11 @@ if (isset($_GET['restaurar'])) {
         $stmt_insert->execute([$tarea['betreff'], $tarea['beschreibung'], $tarea['fach'], $tarea['daten']]);
         $stmt_del = $db->prepare("DELETE FROM completadas WHERE id = ?");
         $stmt_del->execute([$id]);
+
+        // --- GATILLO PARA ACTUALIZAR LOS GUIONES DE SIRI ---
+        exec('python3 /var/www/html/api/guion_academico.py > /dev/null 2>&1 &');
+        exec('python3 /var/www/html/api/guion_citas.py > /dev/null 2>&1 &');
+        exec('python3 /var/www/html/api/guion_personal.py > /dev/null 2>&1 &');
     }
     header("Location: lista_completadas.php"); 
     exit;
