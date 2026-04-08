@@ -1,17 +1,16 @@
-import os
-from dotenv import load_dotenv
 from google import genai
 
-load_dotenv()
-clave = os.getenv("GEMINI_KEY")
+# Inyectamos la clave directamente saltándonos el .env
+API_KEY = "TU_CLAVE_AQUI" 
 
-print("📡 Conectando con los satélites de Google...")
 try:
-    client = genai.Client(api_key=clave)
-    response = client.models.generate_content(
+    print("Conectando con los servidores de Google...")
+    client_ai = genai.Client(api_key=API_KEY)
+    response = client_ai.models.generate_content(
         model="gemini-2.5-flash", 
-        contents="Responde únicamente con estas dos palabras: 'En línea'."
+        contents="Dime hola en una sola palabra."
     )
-    print("✅ Respuesta de J.A.R.V.I.S:", response.text.strip())
+    print("✅ ¡ÉXITO! La IA responde:", response.text)
 except Exception as e:
-    print("❌ Google dice:", e)
+    print("❌ ERROR EXACTO DE LA API:")
+    print(e)
