@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from google import genai
 
 # --- CONFIGURACIÓN ---
-load_dotenv("/var/www/html/api/.env")
+load_dotenv("/var/www/html/api/.env", override=True)
 client_ai = genai.Client(api_key=os.getenv("GEMINI_KEY"))
 
 DB_PATH = "/var/www/ubungen/kalender.db"
