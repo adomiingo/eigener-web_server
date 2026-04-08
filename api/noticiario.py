@@ -125,9 +125,10 @@ def main():
         print(f"✅ Noticiario guardado correctamente en: {TXT_OUTPUT}")
         
     except Exception as e:
-        # Archivo de emergencia por si falla la API
+        print(f"❌ ERROR REAL: {e}") # <-- AÑADE ESTA LÍNEA
+        texto_final = "Buenos días. Ha ocurrido un error al generar el noticiario de hoy. Por favor, revisa mi conexión neuronal."
         with open(TXT_OUTPUT, "w", encoding="utf-8") as f:
-            f.write("Buenos días. Ha ocurrido un error al generar el noticiario de hoy. Por favor, revisa mi conexión neuronal.")
+            f.write(texto_final)
 
 if __name__ == "__main__":
     main()
